@@ -18,6 +18,9 @@ $ git clone https://github.com/evermos/boilerplate-go.git
 #move to project
 $ cd boilerplate-go
 
+# change .env.example to .env
+$ mv .env.example .env
+
 # Build the docker image first
 $ make docker
 
