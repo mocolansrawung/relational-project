@@ -5,7 +5,6 @@ import (
 	"github.com/evermos/boilerplate-go/infras"
 
 	_ "github.com/go-sql-driver/mysql"
-	"github.com/jmoiron/sqlx"
 )
 
 const (
@@ -14,14 +13,13 @@ const (
 )
 
 var (
-	config      configs.Config
-	writeDbConn *sqlx.DB
-	readDbConn  *sqlx.DB
+	config configs.Config
+	dbConn infras.MysqlConn
 )
 
 func initDb() {
-	writeDbConn = infras.WriteMysqlDB(config)
-	readDbConn = infras.ReadMysqlDB(config)
+	dbConn.Write = infras.WriteMysqlDB(config)
+	dbConn.Read = infras.ReadMysqlDB(config)
 }
 
 func initRepositories() {

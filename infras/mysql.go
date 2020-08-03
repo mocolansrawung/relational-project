@@ -14,6 +14,12 @@ const (
 	maxOpenConnection = 10
 )
 
+//MysqlConn struct connection consist of master/slave connection
+type MysqlConn struct {
+	Write *sqlx.DB
+	Read  *sqlx.DB
+}
+
 // WriteMysqlDB - function for creating database connection for write-access
 func WriteMysqlDB(config configs.Config) *sqlx.DB {
 	return CreateDBConnection(fmt.Sprintf("%s:%s@tcp(%s)/%s?charset=utf8&loc=%s&parseTime=true",
