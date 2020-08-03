@@ -1,4 +1,7 @@
 BINARY=engine
+test: 
+	go test -v -cover -covermode=atomic ./...
+	
 engine:
 	go build -o ${BINARY} main.go
 
@@ -17,4 +20,11 @@ run:
 stop:
 	docker-compose down
 
-.PHONY: engine clean unittest build docker run stop
+lint-prepare:
+	@echo "Installing golangci-lint" 
+	curl -sfL https://raw.githubusercontent.com/golangci/golangci-lint/master/install.sh| sh -s latest
+
+lint:
+	./bin/golangci-lint run ./...
+	
+.PHONY: engine clean unittest build docker run stop lint-prepare lint
