@@ -4,8 +4,9 @@ import (
 	"fmt"
 	"log"
 	"os"
-	config "github.com/joho/godotenv"
 
+	_ "github.com/go-sql-driver/mysql"
+	config "github.com/joho/godotenv"
 )
 
 func init() {
@@ -17,7 +18,6 @@ func init() {
 	cfgenv := os.Getenv("ENV")
 	log.Printf("environment ENV=%s", cfgenv)
 }
-
 
 func main() {
 	fmt.Println("Hello World")
