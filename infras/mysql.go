@@ -17,14 +17,14 @@ const (
 // WriteMysqlDB - function for creating database connection for write-access
 func WriteMysqlDB(config configs.Config) *sqlx.DB {
 	return CreateDBConnection(fmt.Sprintf("%s:%s@tcp(%s)/%s?charset=utf8&loc=%s&parseTime=true",
-		config.DatabaseUsername, config.DatabasePassword, config.DatabaseHost, config.DatabaseName, DatabaseTimeZone))
+		config.DatabaseUsername, config.DatabasePassword, config.DatabaseHost, config.DatabaseName, config.DatabaseTimeZone))
 
 }
 
 // ReadMysqlDB function for creating database connection for read-access
 func ReadMysqlDB(config configs.Config) *sqlx.DB {
 	return CreateDBConnection(fmt.Sprintf("%s:%s@tcp(%s)/%s?charset=utf8&loc=%s&parseTime=true",
-		config.DatabaseUsername, config.DatabasePassword, config.DatabaseHost, config.DatabaseName, DatabaseTimeZone))
+		config.DatabaseUsername, config.DatabasePassword, config.DatabaseHost, config.DatabaseName, config.DatabaseTimeZone))
 
 }
 

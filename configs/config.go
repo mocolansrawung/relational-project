@@ -7,6 +7,7 @@ import (
 	"github.com/kelseyhightower/envconfig"
 )
 
+//Config config struct consist of data that provided from env
 type Config struct {
 	//Mysql
 	DatabaseHost     string `envconfig:"database_host"`
@@ -23,6 +24,7 @@ type Config struct {
 
 var conf Config
 
+//Get are responsible to load env and get data an return the struct
 func Get() Config {
 	once := sync.Once{}
 	once.Do(func() {
