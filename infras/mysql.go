@@ -3,6 +3,7 @@ package infras
 import (
 	"fmt"
 	"log"
+	"net/url"
 
 	"github.com/evermos/boilerplate-go/configs"
 
@@ -23,14 +24,14 @@ type MysqlConn struct {
 // WriteMysqlDB - function for creating database connection for write-access
 func WriteMysqlDB(config configs.Config) *sqlx.DB {
 	return CreateDBConnection(fmt.Sprintf("%s:%s@tcp(%s)/%s?charset=utf8&loc=%s&parseTime=true",
-		config.DatabaseUsername, config.DatabasePassword, config.DatabaseHost, config.DatabaseName, config.DatabaseTimeZone))
+		config.WriteDatabaseUsername, config.WriteDatabasePassword, config.WriteDatabaseHost, config.WriteDatabaseName, url.QueryEscape(config.WriteDatabaseTimeZone)))
 
 }
 
 // ReadMysqlDB function for creating database connection for read-access
 func ReadMysqlDB(config configs.Config) *sqlx.DB {
 	return CreateDBConnection(fmt.Sprintf("%s:%s@tcp(%s)/%s?charset=utf8&loc=%s&parseTime=true",
-		config.DatabaseUsername, config.DatabasePassword, config.DatabaseHost, config.DatabaseName, config.DatabaseTimeZone))
+		config.ReadDatabaseUsername, config.ReadDatabasePassword, config.ReadDatabaseHost, config.ReadDatabaseName, url.QueryEscape(config.ReadDatabaseTimeZone)))
 
 }
 
