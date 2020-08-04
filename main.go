@@ -2,22 +2,14 @@ package main
 
 import (
 	"fmt"
-	"log"
-	"os"
-	config "github.com/joho/godotenv"
 
+	"github.com/evermos/boilerplate-go/configs"
 )
 
 func init() {
-	err := config.Load(".env")
-	if err != nil {
-		log.Printf("can't load .env file")
-		os.Exit(2)
-	}
-	cfgenv := os.Getenv("ENV")
-	log.Printf("environment ENV=%s", cfgenv)
+	config = configs.Get()
+	initDb()
 }
-
 
 func main() {
 	fmt.Println("Hello World")

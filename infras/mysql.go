@@ -1,30 +1,36 @@
-package configs
+package infras
 
 import (
 	"fmt"
 	"log"
-	"os"
 
-	_ "github.com/go-sql-driver/mysql"
+	"github.com/evermos/boilerplate-go/configs"
+
 	"github.com/jmoiron/sqlx"
 )
 
 const (
-	MaxIdleConnection = 10
-	MaxOpenConnection = 10
+	maxIdleConnection = 10
+	maxOpenConnection = 10
 )
 
+//MysqlConn struct connection consist of master/slave connection
+type MysqlConn struct {
+	Write *sqlx.DB
+	Read  *sqlx.DB
+}
+
 // WriteMysqlDB - function for creating database connection for write-access
-func WriteMysqlDB() *sqlx.DB {
+func WriteMysqlDB(config configs.Config) *sqlx.DB {
 	return CreateDBConnection(fmt.Sprintf("%s:%s@tcp(%s)/%s?charset=utf8&loc=%s&parseTime=true",
-		os.Getenv("WRITE_DB_USER"), os.Getenv("WRITE_DB_PASSWORD"), os.Getenv("WRITE_DB_HOST"), os.Getenv("WRITE_DB_NAME"), url.QueryEscape("Asia/Jakarta")))
+		config.DatabaseUsername, config.DatabasePassword, config.DatabaseHost, config.DatabaseName, config.DatabaseTimeZone))
 
 }
 
 // ReadMysqlDB function for creating database connection for read-access
-func ReadMysqlDB() *sqlx.DB {
+func ReadMysqlDB(config configs.Config) *sqlx.DB {
 	return CreateDBConnection(fmt.Sprintf("%s:%s@tcp(%s)/%s?charset=utf8&loc=%s&parseTime=true",
-		os.Getenv("READ_DB_USER"), os.Getenv("READ_DB_PASSWORD"), os.Getenv("READ_DB_HOST"), os.Getenv("READ_DB_NAME"), url.QueryEscape("Asia/Jakarta")))
+		config.DatabaseUsername, config.DatabasePassword, config.DatabaseHost, config.DatabaseName, config.DatabaseTimeZone))
 
 }
 
@@ -34,8 +40,8 @@ func CreateDBConnection(descriptor string) *sqlx.DB {
 	if err != nil {
 		log.Fatalf("error connecting to DB: %s", descriptor)
 	}
-	db.SetMaxIdleConns(MaxIdleConnection)
-	db.SetMaxOpenConns(MaxOpenConnection)
+	db.SetMaxIdleConns(maxIdleConnection)
+	db.SetMaxOpenConns(maxOpenConnection)
 
 	return db
 }
