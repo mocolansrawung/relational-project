@@ -36,3 +36,22 @@ $ curl localhost:9090
 # Stop
 $ make stop
 ```
+
+## Ez Development
+#### Refresh
+
+Use refresh are for better development experience. 
+
+#
+```bash
+#install on your GO ROOT/ GO PATH
+$ go get github.com/markbates/refresh
+
+#Create config file
+$ refresh init
+
+#Run like a boss
+$ refresh run
+```
+
+
