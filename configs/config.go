@@ -9,6 +9,8 @@ import (
 
 //Config config struct consist of data that provided from env
 type Config struct {
+	Port string `mapstructure:"PORT"`
+
 	//Mysql
 	WriteDatabaseHost     string `mapstructure:"WRITE_DB_HOST"`
 	WriteDatabaseUsername string `mapstructure:"WRITE_DB_USER"`
@@ -31,7 +33,7 @@ type Config struct {
 var conf Config
 
 //Get are responsible to load env and get data an return the struct
-func Get() Config {
+func Get() *Config {
 	viper.SetConfigFile(".env")
 	err := viper.ReadInConfig()
 
@@ -47,5 +49,5 @@ func Get() Config {
 		}
 	})
 
-	return conf
+	return &conf
 }
