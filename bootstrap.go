@@ -36,7 +36,7 @@ func registry() *container.ServiceRegistry {
 	// Service
 	c.Register("service.example", new(services.ExampleService))
 
-	//Handler
+	// Handler
 	c.Register("handler", new(handlers.Handler))
 
 	return c
