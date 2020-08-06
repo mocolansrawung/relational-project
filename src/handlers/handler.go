@@ -1,13 +1,25 @@
 package handlers
 
 import (
+	"net/http"
+
+	"github.com/go-chi/chi"
+	"github.com/go-chi/render"
+
+	"github.com/evermos/boilerplate-go/shared"
 	"github.com/evermos/boilerplate-go/src/services"
 )
 
 type Handler struct {
-	Service *services.Service `inject:"service"`
+	ExampleService services.ExampleContract `inject:"service.example"`
 }
 
-func (h *Handler) TestHandler() {
-	h.Service.TestService()
+func (h *Handler) Router(r chi.Router) {
+	r.Get("/health-check", h.Example)
+}
+
+func (h *Handler) Example(w http.ResponseWriter, r *http.Request) {
+	status := h.ExampleService.Get()
+
+	render.JSON(w, r, shared.NewResponse(status, "success", 0))
 }

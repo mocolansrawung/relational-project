@@ -9,6 +9,8 @@ import (
 	"github.com/evermos/boilerplate-go/src/handlers"
 	"github.com/evermos/boilerplate-go/src/repositories"
 	"github.com/evermos/boilerplate-go/src/services"
+
+	"github.com/go-chi/chi"
 	_ "github.com/go-sql-driver/mysql"
 )
 
@@ -17,22 +19,40 @@ const (
 	serviceVersion = "0.0.1"
 )
 
-func init() {
-	container := container.NewContainer()
+type Router struct {
+	Handler *handlers.Handler `inject:"handler"`
+}
+
+func registry() *container.ServiceRegistry {
+	c := container.NewContainer()
 	config := configs.Get()
 	db := infras.MysqlConn{Write: infras.WriteMysqlDB(*config), Read: infras.ReadMysqlDB(*config)}
-	container.Register("config", config)
-	container.Register("db", &db)
-	container.Register("repo", new(repositories.Repository))
-	container.Register("service", new(services.Service))
+	c.Register("config", config)
+	c.Register("db", &db)
 
-	h := handlers.Handler{}
-	container.Register("handler", &h)
+	// Repository
+	c.Register("repository.example", new(repositories.ExampleRepository))
 
-	err := container.Start()
-	if err != nil {
-		log.Fatalf("error starting container : %v", err)
+	// Service
+	c.Register("service.example", new(services.ExampleService))
+
+	//Handler
+	c.Register("handler", new(handlers.Handler))
+
+	return c
+}
+
+func ServeHTTP() *chi.Mux {
+	mux := chi.NewRouter()
+	c := registry()
+
+	router := Router{}
+	c.Register("router", &router)
+
+	if err := c.Start(); err != nil {
+		log.Fatalln(err)
 	}
+	router.Handler.Router(mux)
 
-	h.TestHandler()
+	return mux
 }

@@ -1,9 +1,9 @@
 package main
 
-import (
-	"fmt"
-)
+import "net/http"
 
 func main() {
-	fmt.Println("Hello World")
+	if err := http.ListenAndServe(":3000", ServeHTTP()); err != nil {
+		panic(err)
+	}
 }
