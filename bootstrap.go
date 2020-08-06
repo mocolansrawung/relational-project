@@ -1,9 +1,14 @@
 package main
 
 import (
-	"github.com/evermos/boilerplate-go/configs"
-	"github.com/evermos/boilerplate-go/infras"
+	"log"
 
+	"github.com/evermos/boilerplate-go/configs"
+	"github.com/evermos/boilerplate-go/container"
+	"github.com/evermos/boilerplate-go/infras"
+	"github.com/evermos/boilerplate-go/src/handlers"
+	"github.com/evermos/boilerplate-go/src/repositories"
+	"github.com/evermos/boilerplate-go/src/services"
 	_ "github.com/go-sql-driver/mysql"
 )
 
@@ -12,24 +17,22 @@ const (
 	serviceVersion = "0.0.1"
 )
 
-var (
-	config configs.Config
-	dbConn infras.MysqlConn
-)
+func init() {
+	container := container.NewContainer()
+	config := configs.Get()
+	db := infras.MysqlConn{Write: infras.WriteMysqlDB(*config), Read: infras.ReadMysqlDB(*config)}
+	container.Register("config", config)
+	container.Register("db", &db)
+	container.Register("repo", new(repositories.Repository))
+	container.Register("service", new(services.Service))
 
-func initDb() {
-	dbConn.Write = infras.WriteMysqlDB(config)
-	dbConn.Read = infras.ReadMysqlDB(config)
-}
+	h := handlers.Handler{}
+	container.Register("handler", &h)
 
-func initRepositories() {
+	err := container.Start()
+	if err != nil {
+		log.Fatalf("error starting container : %v", err)
+	}
 
-}
-
-func initServices() {
-
-}
-
-func serveHTTP() {
-
+	h.TestHandler()
 }
