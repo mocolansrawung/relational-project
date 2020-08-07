@@ -1,29 +1,36 @@
 package shared
 
+import (
+	"net/http"
+	"reflect"
+
+	"github.com/go-chi/render"
+)
+
 type Response struct {
-	Code    int         `json:"code"`
+	Code    int         `json:"-"`
 	Message string      `json:"message"`
-	Data    interface{} `json:"data"`
+	Data    interface{} `json:"data,omitempty"`
+	Error   interface{} `json:"error,omitempty"`
 }
 
-func NewResponse(data interface{}, message string, code int) Response {
-	return Response{
+func NewResponse(code int, message string, data interface{}, err ...interface{}) Response {
+	r := Response{
 		Code:    code,
 		Message: message,
-		Data:    data,
 	}
+	if data != nil || reflect.ValueOf(data).Kind() == reflect.Ptr {
+		r.Data = data
+	}
+
+	if err != nil || reflect.ValueOf(err).Kind() == reflect.Ptr {
+		r.Error = err[0]
+	}
+
+	return r
 }
 
-type ErrorResponse struct {
-	Code    int    `json:"code"`
-	Message string `json:"message"`
-	Error   string `json:"error"`
-}
-
-func NewErrorResponse(err error, message string, code int) ErrorResponse {
-	return ErrorResponse{
-		Code:    code,
-		Message: message,
-		Error:   err.Error(),
-	}
+func JsonResponse(w http.ResponseWriter, r *http.Request, resp Response) {
+	render.Status(r, resp.Code)
+	render.JSON(w, r, resp)
 }
