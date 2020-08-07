@@ -3,6 +3,8 @@ package main
 import (
 	"log"
 
+	"github.com/go-chi/chi/middleware"
+
 	"github.com/evermos/boilerplate-go/configs"
 	"github.com/evermos/boilerplate-go/container"
 	"github.com/evermos/boilerplate-go/infras"
@@ -44,6 +46,8 @@ func registry() *container.ServiceRegistry {
 
 func ServeHTTP() *chi.Mux {
 	mux := chi.NewRouter()
+	mux.Use(middleware.Logger)
+	mux.Use(middleware.Recoverer)
 	c := registry()
 
 	router := Router{}
