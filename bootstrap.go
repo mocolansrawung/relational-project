@@ -4,8 +4,6 @@ import (
 	"log"
 	"net/http"
 
-	"github.com/go-chi/chi/middleware"
-
 	"github.com/evermos/boilerplate-go/configs"
 	"github.com/evermos/boilerplate-go/container"
 	"github.com/evermos/boilerplate-go/infras"
@@ -14,6 +12,7 @@ import (
 	"github.com/evermos/boilerplate-go/src/services"
 
 	"github.com/go-chi/chi"
+	"github.com/go-chi/chi/middleware"
 	_ "github.com/go-sql-driver/mysql"
 )
 
