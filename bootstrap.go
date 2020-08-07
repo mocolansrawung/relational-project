@@ -2,6 +2,7 @@ package main
 
 import (
 	"log"
+	"net/http"
 
 	"github.com/go-chi/chi/middleware"
 
@@ -21,13 +22,15 @@ const (
 	serviceVersion = "0.0.1"
 )
 
+var config *configs.Config
+
 type Router struct {
 	ExampleHandler *handlers.ExampleHandler `inject:"handler.example"`
 }
 
 func registry() *container.ServiceRegistry {
 	c := container.NewContainer()
-	config := configs.Get()
+	config = configs.Get()
 	db := infras.MysqlConn{Write: infras.WriteMysqlDB(*config), Read: infras.ReadMysqlDB(*config)}
 	c.Register("config", config)
 	c.Register("db", &db)
@@ -44,7 +47,7 @@ func registry() *container.ServiceRegistry {
 	return c
 }
 
-func ServeHTTP() *chi.Mux {
+func ServeHTTP() error {
 	mux := chi.NewRouter()
 	mux.Use(middleware.Logger)
 	mux.Use(middleware.Recoverer)
@@ -58,5 +61,5 @@ func ServeHTTP() *chi.Mux {
 	}
 	router.ExampleHandler.Router(mux)
 
-	return mux
+	return http.ListenAndServe(":"+config.Port, mux)
 }
