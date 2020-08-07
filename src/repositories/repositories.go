@@ -1,5 +1,5 @@
 package repositories
 
 type ExampleContract interface {
-	Get() string
+	Get() (string, error)
 }

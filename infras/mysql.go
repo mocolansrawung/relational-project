@@ -1,6 +1,7 @@
 package infras
 
 import (
+	"database/sql"
 	"fmt"
 	"log"
 	"net/url"
@@ -45,4 +46,12 @@ func CreateDBConnection(descriptor string) *sqlx.DB {
 	db.SetMaxOpenConns(maxOpenConnection)
 
 	return db
+}
+
+func OpenMock(db *sql.DB) *MysqlConn {
+	conn := sqlx.NewDb(db, "mysql")
+	return &MysqlConn{
+		Write: conn,
+		Read:  conn,
+	}
 }

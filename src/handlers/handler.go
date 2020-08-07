@@ -19,7 +19,12 @@ func (h *Handler) Router(r chi.Router) {
 }
 
 func (h *Handler) Example(w http.ResponseWriter, r *http.Request) {
-	status := h.ExampleService.Get()
+	status, err := h.ExampleService.Get()
+	if err != nil {
+		render.Status(r, 400)
+		render.JSON(w, r, shared.NewErrorResponse(err, "error get status", 0))
+		return
+	}
 
 	render.JSON(w, r, shared.NewResponse(status, "success", 0))
 }

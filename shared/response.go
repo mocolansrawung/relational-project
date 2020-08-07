@@ -13,3 +13,17 @@ func NewResponse(data interface{}, message string, code int) Response {
 		Data:    data,
 	}
 }
+
+type ErrorResponse struct {
+	Code    int    `json:"code"`
+	Message string `json:"message"`
+	Error   string `json:"error"`
+}
+
+func NewErrorResponse(err error, message string, code int) ErrorResponse {
+	return ErrorResponse{
+		Code:    code,
+		Message: message,
+		Error:   err.Error(),
+	}
+}
