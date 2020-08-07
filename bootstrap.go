@@ -22,7 +22,7 @@ const (
 )
 
 type Router struct {
-	Handler *handlers.Handler `inject:"handler"`
+	ExampleHandler *handlers.ExampleHandler `inject:"handler.example"`
 }
 
 func registry() *container.ServiceRegistry {
@@ -39,7 +39,7 @@ func registry() *container.ServiceRegistry {
 	c.Register("service.example", new(services.ExampleService))
 
 	// Handler
-	c.Register("handler", new(handlers.Handler))
+	c.Register("handler.example", new(handlers.ExampleHandler))
 
 	return c
 }
@@ -56,7 +56,7 @@ func ServeHTTP() *chi.Mux {
 	if err := c.Start(); err != nil {
 		log.Fatalln(err)
 	}
-	router.Handler.Router(mux)
+	router.ExampleHandler.Router(mux)
 
 	return mux
 }
