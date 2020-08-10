@@ -2,35 +2,44 @@ package shared
 
 import (
 	"net/http"
-	"reflect"
 
 	"github.com/go-chi/render"
 )
 
-type Response struct {
-	Code    int         `json:"-"`
+type ResponseFailed struct {
+	Code    int         `json:"code"`
 	Message string      `json:"message"`
-	Data    interface{} `json:"data,omitempty"`
-	Error   interface{} `json:"error,omitempty"`
+	Error   interface{} `json:"error"`
 }
 
-func NewResponse(code int, message string, data interface{}, err ...interface{}) Response {
-	r := Response{
+type ResponseSuccess struct {
+	Code    int         `json:"code"`
+	Message string      `json:"message"`
+	Data    interface{} `json:"data"`
+}
+
+func WriteFailed(code int, message string, err interface{}) ResponseFailed {
+	return ResponseFailed{
 		Code:    code,
 		Message: message,
+		Error:   err,
 	}
-	if data != nil || reflect.ValueOf(data).Kind() == reflect.Ptr {
-		r.Data = data
-	}
-
-	if err != nil || reflect.ValueOf(err).Kind() == reflect.Ptr {
-		r.Error = err[0]
-	}
-
-	return r
 }
 
-func JsonResponse(w http.ResponseWriter, r *http.Request, resp Response) {
+func WriteSuccess(code int, message string, data interface{}) ResponseSuccess {
+	return ResponseSuccess{
+		Code:    code,
+		Message: message,
+		Data:    data,
+	}
+}
+
+func Success(w http.ResponseWriter, r *http.Request, resp ResponseSuccess) {
+	render.Status(r, resp.Code)
+	render.JSON(w, r, resp)
+}
+
+func Failed(w http.ResponseWriter, r *http.Request, resp ResponseFailed) {
 	render.Status(r, resp.Code)
 	render.JSON(w, r, resp)
 }
