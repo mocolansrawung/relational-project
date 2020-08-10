@@ -20,9 +20,9 @@ func (h *ExampleHandler) Router(r chi.Router) {
 func (h *ExampleHandler) Example(w http.ResponseWriter, r *http.Request) {
 	status, err := h.ExampleService.Get()
 	if err != nil {
-		shared.JsonResponse(w, r, shared.NewResponse(400, "error get status", nil, err.Error()))
+		shared.Failed(w, r, shared.WriteFailed(400, "error get status", err.Error()))
 		return
 	}
 
-	shared.JsonResponse(w, r, shared.NewResponse(200, "success", status))
+	shared.Success(w, r, shared.WriteSuccess(200, "success", status))
 }
