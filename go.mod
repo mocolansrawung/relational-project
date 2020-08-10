@@ -4,6 +4,7 @@ go 1.14
 
 require (
 	github.com/DATA-DOG/go-sqlmock v1.4.1
+	github.com/alecthomas/template v0.0.0-20190718012654-fb15b899a751
 	github.com/facebookgo/ensure v0.0.0-20200202191622-63f1cf65ac4c // indirect
 	github.com/facebookgo/inject v0.0.0-20180706035515-f23751cae28b
 	github.com/facebookgo/stack v0.0.0-20160209184415-751773369052 // indirect
@@ -17,4 +18,6 @@ require (
 	github.com/jmoiron/sqlx v1.2.0
 	github.com/onsi/ginkgo v1.14.0 // indirect
 	github.com/spf13/viper v1.7.1
+	github.com/swaggo/http-swagger v0.0.0-20200308142732-58ac5e232fba
+	github.com/swaggo/swag v1.6.3
 )

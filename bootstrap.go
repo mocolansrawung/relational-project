@@ -1,6 +1,7 @@
 package main
 
 import (
+	"fmt"
 	"log"
 
 	"github.com/evermos/boilerplate-go/configs"
@@ -10,14 +11,17 @@ import (
 	"github.com/evermos/boilerplate-go/src/repositories"
 	"github.com/evermos/boilerplate-go/src/services"
 
+	"github.com/evermos/boilerplate-go/docs" // swagger Docs
 	"github.com/go-chi/chi"
 	"github.com/go-chi/chi/middleware"
 	_ "github.com/go-sql-driver/mysql"
+	httpSwagger "github.com/swaggo/http-swagger"
 )
 
 const (
-	serviceName    = "Evermos/ExampleService"
-	serviceVersion = "0.0.1"
+	serviceName     = "Evermos/ExampleService"
+	serviceVersion  = "0.0.1"
+	environtmentDev = "development"
 )
 
 var (
@@ -52,12 +56,20 @@ func Routes() *chi.Mux {
 	mux := chi.NewRouter()
 	mux.Use(middleware.Logger)
 	mux.Use(middleware.Recoverer)
+
 	c := registry()
 	router := Router{}
+
 	c.Register("router", &router)
 
 	if err := c.Start(); err != nil {
 		log.Fatalln(err)
+	}
+	if config.Env == environtmentDev {
+		docs.SwaggerInfo.Title = serviceName
+		docs.SwaggerInfo.Version = serviceVersion
+		swaggerURL := fmt.Sprintf("%s/swagger/doc.json", config.AppURL)
+		mux.Get("/docs/*", httpSwagger.Handler(httpSwagger.URL(swaggerURL)))
 	}
 
 	router.ExampleHandler.Router(mux)

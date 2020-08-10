@@ -17,6 +17,15 @@ func (h *ExampleHandler) Router(r chi.Router) {
 	r.Get("/health-check", h.Example)
 }
 
+// Example godoc
+// @Summary Healthcheck
+// @Description Healthcheck Endpoint
+// @Tags Healthcheck
+// @Produce json
+// @Accept json
+// @Success 200 {object} shared.ResponseSuccess
+// @Failure 400 {object} shared.ResponseFailed
+// @Router /health-check [get]
 func (h *ExampleHandler) Example(w http.ResponseWriter, r *http.Request) {
 	status, err := h.ExampleService.Get()
 	if err != nil {
