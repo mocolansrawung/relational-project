@@ -54,4 +54,21 @@ $ refresh init
 $ refresh run
 ```
 
+## Documentation ##
+#### Swagger
+#
+```bash
+$ go get
+$ swag init
+```
+
+go to {app_url}/docs/
+
+example:
+```
+localhost:8000/docs/
+```
+
+
+
 

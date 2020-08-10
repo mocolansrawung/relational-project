@@ -17,6 +17,14 @@ func (h *ExampleHandler) Router(r chi.Router) {
 	r.Get("/health-check", h.Example)
 }
 
+// Example :nodoc:
+// @Summary Example
+// @Description Example
+// @Tags Example
+// @Produce json
+// @Accept json
+// @Success 200 {object} shared.Response
+// @Router /health-check [get]
 func (h *ExampleHandler) Example(w http.ResponseWriter, r *http.Request) {
 	status, err := h.ExampleService.Get()
 	if err != nil {

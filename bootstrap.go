@@ -1,6 +1,7 @@
 package main
 
 import (
+	"fmt"
 	"log"
 	"net/http"
 
@@ -11,9 +12,11 @@ import (
 	"github.com/evermos/boilerplate-go/src/repositories"
 	"github.com/evermos/boilerplate-go/src/services"
 
+	_ "github.com/evermos/boilerplate-go/docs" // swagger Docs
 	"github.com/go-chi/chi"
 	"github.com/go-chi/chi/middleware"
 	_ "github.com/go-sql-driver/mysql"
+	httpSwagger "github.com/swaggo/http-swagger"
 )
 
 const (
@@ -50,14 +53,21 @@ func ServeHTTP() error {
 	mux := chi.NewRouter()
 	mux.Use(middleware.Logger)
 	mux.Use(middleware.Recoverer)
+
 	c := registry()
 
 	router := Router{}
+
 	c.Register("router", &router)
 
 	if err := c.Start(); err != nil {
 		log.Fatalln(err)
 	}
+	if config.Env == "development" {
+		swaggerURL := fmt.Sprintf("%s/swagger/doc.json", config.AppURL)
+		mux.Get("/docs/*", httpSwagger.Handler(httpSwagger.URL(swaggerURL)))
+	}
+
 	router.ExampleHandler.Router(mux)
 
 	return http.ListenAndServe(":"+config.Port, mux)
