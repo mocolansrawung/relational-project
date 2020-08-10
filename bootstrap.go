@@ -53,13 +53,13 @@ func Routes() *chi.Mux {
 	mux.Use(middleware.Logger)
 	mux.Use(middleware.Recoverer)
 	c := registry()
+	router := Router{}
+	c.Register("router", &router)
 
 	if err := c.Start(); err != nil {
 		log.Fatalln(err)
 	}
 
-	router := Router{}
-	c.Register("router", &router)
 	router.ExampleHandler.Router(mux)
 
 	return mux
