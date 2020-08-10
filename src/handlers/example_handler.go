@@ -17,20 +17,21 @@ func (h *ExampleHandler) Router(r chi.Router) {
 	r.Get("/health-check", h.Example)
 }
 
-// Example :nodoc:
-// @Summary Example
-// @Description Example
-// @Tags Example
+// Example godoc
+// @Summary Healthcheck
+// @Description Healthcheck Endpoint
+// @Tags Healthcheck
 // @Produce json
 // @Accept json
-// @Success 200 {object} shared.Response
+// @Success 200 {object} shared.ResponseSuccess
+// @Failure 400 {object} shared.ResponseFailed
 // @Router /health-check [get]
 func (h *ExampleHandler) Example(w http.ResponseWriter, r *http.Request) {
 	status, err := h.ExampleService.Get()
 	if err != nil {
-		shared.JsonResponse(w, r, shared.NewResponse(400, "error get status", nil, err.Error()))
+		shared.Failed(w, r, shared.WriteFailed(400, "error get status", err.Error()))
 		return
 	}
 
-	shared.JsonResponse(w, r, shared.NewResponse(200, "success", status))
+	shared.Success(w, r, shared.WriteSuccess(200, "success", status))
 }

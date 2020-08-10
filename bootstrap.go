@@ -3,7 +3,6 @@ package main
 import (
 	"fmt"
 	"log"
-	"net/http"
 
 	"github.com/evermos/boilerplate-go/configs"
 	"github.com/evermos/boilerplate-go/container"
@@ -24,7 +23,10 @@ const (
 	serviceVersion = "0.0.1"
 )
 
-var config *configs.Config
+var (
+	db     *infras.MysqlConn
+	config *configs.Config
+)
 
 type Router struct {
 	ExampleHandler *handlers.ExampleHandler `inject:"handler.example"`
@@ -33,9 +35,9 @@ type Router struct {
 func registry() *container.ServiceRegistry {
 	c := container.NewContainer()
 	config = configs.Get()
-	db := infras.MysqlConn{Write: infras.WriteMysqlDB(*config), Read: infras.ReadMysqlDB(*config)}
+	db = &infras.MysqlConn{Write: infras.WriteMysqlDB(*config), Read: infras.ReadMysqlDB(*config)}
 	c.Register("config", config)
-	c.Register("db", &db)
+	c.Register("db", db)
 
 	// Repository
 	c.Register("repository.example", new(repositories.ExampleRepository))
@@ -49,13 +51,12 @@ func registry() *container.ServiceRegistry {
 	return c
 }
 
-func ServeHTTP() error {
+func Routes() *chi.Mux {
 	mux := chi.NewRouter()
 	mux.Use(middleware.Logger)
 	mux.Use(middleware.Recoverer)
 
 	c := registry()
-
 	router := Router{}
 
 	c.Register("router", &router)
@@ -70,5 +71,5 @@ func ServeHTTP() error {
 
 	router.ExampleHandler.Router(mux)
 
-	return http.ListenAndServe(":"+config.Port, mux)
+	return mux
 }
