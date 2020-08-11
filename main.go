@@ -5,6 +5,7 @@ import (
 )
 
 func main() {
-	http := http.Http{DB: db, Config: config, Router: Routes()}
+	registry()
+	http := http.Http{DB: db, Config: config, Router: router.Route()}
 	http.Serve()
 }
