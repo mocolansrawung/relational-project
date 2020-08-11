@@ -1,39 +1,26 @@
 package main
 
 import (
-	"fmt"
 	"log"
 
 	"github.com/evermos/boilerplate-go/configs"
 	"github.com/evermos/boilerplate-go/container"
 	"github.com/evermos/boilerplate-go/infras"
+	routers "github.com/evermos/boilerplate-go/router"
 	"github.com/evermos/boilerplate-go/src/handlers"
 	"github.com/evermos/boilerplate-go/src/repositories"
 	"github.com/evermos/boilerplate-go/src/services"
 
-	"github.com/evermos/boilerplate-go/docs" // swagger Docs
-	"github.com/go-chi/chi"
-	"github.com/go-chi/chi/middleware"
 	_ "github.com/go-sql-driver/mysql"
-	httpSwagger "github.com/swaggo/http-swagger"
-)
-
-const (
-	serviceName     = "Evermos/ExampleService"
-	serviceVersion  = "0.0.1"
-	environtmentDev = "development"
 )
 
 var (
 	db     *infras.MysqlConn
 	config *configs.Config
+	router *routers.Router
 )
 
-type Router struct {
-	ExampleHandler *handlers.ExampleHandler `inject:"handler.example"`
-}
-
-func registry() *container.ServiceRegistry {
+func registry() {
 	c := container.NewContainer()
 	config = configs.Get()
 	db = &infras.MysqlConn{Write: infras.WriteMysqlDB(*config), Read: infras.ReadMysqlDB(*config)}
@@ -49,30 +36,10 @@ func registry() *container.ServiceRegistry {
 	// Handler
 	c.Register("handler.example", new(handlers.ExampleHandler))
 
-	return c
-}
-
-func Routes() *chi.Mux {
-	mux := chi.NewRouter()
-	mux.Use(middleware.Logger)
-	mux.Use(middleware.Recoverer)
-
-	c := registry()
-	router := Router{}
-
-	c.Register("router", &router)
-
-	if err := c.Start(); err != nil {
+	router = &routers.Router{}
+	c.Register("router", router)
+	err := c.Start()
+	if err != nil {
 		log.Fatalln(err)
 	}
-	if config.Env == environtmentDev {
-		docs.SwaggerInfo.Title = serviceName
-		docs.SwaggerInfo.Version = serviceVersion
-		swaggerURL := fmt.Sprintf("%s/swagger/doc.json", config.AppURL)
-		mux.Get("/docs/*", httpSwagger.Handler(httpSwagger.URL(swaggerURL)))
-	}
-
-	router.ExampleHandler.Router(mux)
-
-	return mux
 }

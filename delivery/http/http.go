@@ -1,13 +1,16 @@
 package http
 
 import (
+	"fmt"
 	netHttp "net/http"
 
 	"github.com/evermos/boilerplate-go/configs"
+	"github.com/evermos/boilerplate-go/docs"
 	"github.com/evermos/boilerplate-go/infras"
 	"github.com/evermos/boilerplate-go/shared"
 
 	"github.com/go-chi/chi"
+	httpSwagger "github.com/swaggo/http-swagger"
 )
 
 type Http struct {
@@ -18,6 +21,14 @@ type Http struct {
 
 func (h *Http) Serve() {
 	h.Router.Get("/health", h.HealthCheck)
+
+	if h.Config.Env == shared.EnvirontmentDev {
+		docs.SwaggerInfo.Title = shared.ServiceName
+		docs.SwaggerInfo.Version = shared.ServiceVersion
+		swaggerURL := fmt.Sprintf("%s/swagger/doc.json", h.Config.AppURL)
+		h.Router.Get("/docs/*", httpSwagger.Handler(httpSwagger.URL(swaggerURL)))
+	}
+
 	netHttp.ListenAndServe(":"+h.Config.Port, h.Router)
 }
 
