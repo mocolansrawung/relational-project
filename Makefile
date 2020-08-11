@@ -3,7 +3,7 @@ test:
 	go test -v -cover -covermode=atomic ./...
 	
 engine:
-	go build -o ${BINARY} main.go
+	go build -o ${BINARY} *.go
 
 unittest:
 	go test -short  ./...
@@ -26,5 +26,8 @@ lint-prepare:
 
 lint:
 	./bin/golangci-lint run ./...
+
+documents:
+	swag init
 	
 .PHONY: engine clean unittest build docker run stop lint-prepare lint
