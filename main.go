@@ -6,6 +6,6 @@ import (
 
 func main() {
 	registry()
-	http := http.Http{DB: db, Config: config, Router: router.Route()}
+	http := http.Http{DB: db, Config: config, Router: router.NewRouter()}
 	http.Serve()
 }

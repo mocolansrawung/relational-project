@@ -10,7 +10,7 @@ type Router struct {
 	ExampleHandler *handlers.ExampleHandler `inject:"handler.example"`
 }
 
-func (r *Router) Route() *chi.Mux {
+func (r *Router) NewRouter() *chi.Mux {
 	mux := chi.NewRouter()
 	mux.Use(middleware.Logger)
 	mux.Use(middleware.Recoverer)
