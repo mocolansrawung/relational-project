@@ -26,5 +26,8 @@ lint-prepare:
 
 lint:
 	./bin/golangci-lint run ./...
+
+documents:
+	swag init
 	
 .PHONY: engine clean unittest build docker run stop lint-prepare lint
