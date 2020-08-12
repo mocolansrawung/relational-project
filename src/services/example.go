@@ -14,7 +14,7 @@ type ExampleService struct {
 }
 
 func (s *ExampleService) OnStart() {
-	log.Println("Start initializing...")
+	log.Println("Start initializing example service...")
 }
 
 func (s *ExampleService) OnShutdown() {

@@ -28,6 +28,7 @@ type Http struct {
 func (h *Http) Shutdown(done chan os.Signal, svc container.ServiceRegistry) {
 	<-done
 	defer os.Exit(0)
+	log.Println("received signal shutdown...")
 	time.Sleep(time.Duration(h.Config.ShutdownPeriod) * time.Second)
 	log.Println("Clean up all resources...")
 	svc.Shutdown()
