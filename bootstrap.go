@@ -14,12 +14,6 @@ import (
 	_ "github.com/go-sql-driver/mysql"
 )
 
-var (
-	db     *infras.MysqlConn
-	config *configs.Config
-	router *routers.Router
-)
-
 func registry() {
 	c := container.NewContainer()
 	config = configs.Get()

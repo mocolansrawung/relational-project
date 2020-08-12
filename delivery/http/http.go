@@ -3,6 +3,9 @@ package http
 import (
 	"fmt"
 	netHttp "net/http"
+	"os"
+	"os/signal"
+	"syscall"
 
 	"github.com/evermos/boilerplate-go/configs"
 	"github.com/evermos/boilerplate-go/docs"
@@ -17,6 +20,17 @@ type Http struct {
 	Config *configs.Config
 	DB     *infras.MysqlConn
 	Router *chi.Mux
+}
+
+func (h *Http) Shutdown(done chan os.Signal) {
+	<-done
+	defer os.Exit(0)
+}
+
+func (h *Http) GracefulShutdown() {
+	done := make(chan os.Signal, 1)
+	signal.Notify(done, os.Interrupt, syscall.SIGINT, syscall.SIGTERM)
+	go h.Shutdown(done)
 }
 
 func (h *Http) Serve() {
