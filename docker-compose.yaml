@@ -1,9 +1,9 @@
 version: "3.3"
 services:
-  web:
+  api:
     build:
       context: .
-      dockerfile: Dockerfile
+      dockerfile: Dockerfile-local
     container_name: go_api
     ports:
       - 9090:9090

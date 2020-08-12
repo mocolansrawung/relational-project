@@ -12,7 +12,7 @@ clean:
 	if [ -f ${BINARY} ] ; then rm ${BINARY} ; fi
 
 docker:
-	docker build -t boilerplate-go -f Dockerfile .
+	docker build -t boilerplate-go -f Dockerfile-local .
 
 run:
 	docker-compose up --build -d

@@ -28,7 +28,9 @@ EXPOSE 9090
 
 COPY --from=builder /app/engine /app
 
-# enable if running kube
-RUN ln -s /env/.env .
+COPY .env /app
+
+# disable if running local
+#RUN ln -s /env/.env .
 
 CMD /app/engine
