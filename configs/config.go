@@ -30,6 +30,11 @@ type Config struct {
 	RedisPort     string `mapstructure:"REDIS_PORT"`
 	RedisPassword string `mapstructure:"REDIS_PASSWORD"`
 
+	//Message Broker
+	NsqHost               string `mapstructure:"NSQ_HOST"`
+	NsqPort               string `mapstructure:"NSQ_PORT"`
+	EnableExampleConsumer bool   `mapstructure:"ENABLE_EXAMPLE_CONSUMER"`
+
 	//APP
 	AppURL string `mapstructure:"APP_URL"`
 	Env    string `mapstructure:"ENV"`
