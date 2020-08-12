@@ -1,6 +1,7 @@
 package example
 
 import (
+	"github.com/evermos/boilerplate-go/src/services"
 	"log"
 
 	"github.com/evermos/boilerplate-go/configs"
@@ -10,8 +11,9 @@ import (
 )
 
 type EventConsumer struct {
-	Config *configs.Config `inject:"config"`
-	nsq    consumer.NsqEventConsumer
+	Config         *configs.Config `inject:"config"`
+	nsq            consumer.NsqEventConsumer
+	ExampleService services.ExampleContract `inject:"service.example"`
 }
 
 func (e *EventConsumer) OnStart() {
@@ -29,6 +31,11 @@ func (e *EventConsumer) OnStart() {
 
 func (e *EventConsumer) processEvent(message *nsq.Message) error {
 	log.Println("Start processing event...")
+	_, err := e.ExampleService.Get()
+	if err != nil {
+		log.Println("err : ", err.Error())
+		return err
+	}
 	return nil
 }
 
