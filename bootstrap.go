@@ -14,13 +14,7 @@ import (
 	_ "github.com/go-sql-driver/mysql"
 )
 
-var (
-	db     *infras.MysqlConn
-	config *configs.Config
-	router *routers.Router
-)
-
-func registry() {
+func registry() *container.ServiceRegistry {
 	c := container.NewContainer()
 	config = configs.Get()
 	db = &infras.MysqlConn{Write: infras.WriteMysqlDB(*config), Read: infras.ReadMysqlDB(*config)}
@@ -42,4 +36,6 @@ func registry() {
 	if err != nil {
 		log.Fatalln(err)
 	}
+
+	return c
 }

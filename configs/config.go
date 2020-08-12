@@ -9,7 +9,8 @@ import (
 
 //Config config struct consist of data that provided from env
 type Config struct {
-	Port string `mapstructure:"PORT"`
+	Port           string `mapstructure:"PORT"`
+	ShutdownPeriod int64  `mapstructure:"SHUTDOWN_PERIOD"`
 
 	//Mysql
 	WriteDatabaseHost     string `mapstructure:"WRITE_DB_HOST"`

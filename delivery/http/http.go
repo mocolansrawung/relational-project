@@ -2,9 +2,15 @@ package http
 
 import (
 	"fmt"
+	"log"
 	netHttp "net/http"
+	"os"
+	"os/signal"
+	"syscall"
+	"time"
 
 	"github.com/evermos/boilerplate-go/configs"
+	"github.com/evermos/boilerplate-go/container"
 	"github.com/evermos/boilerplate-go/docs"
 	"github.com/evermos/boilerplate-go/infras"
 	"github.com/evermos/boilerplate-go/shared"
@@ -19,9 +25,25 @@ type Http struct {
 	Router *chi.Mux
 }
 
-func (h *Http) Serve() {
-	h.Router.Get("/health", h.HealthCheck)
+func (h *Http) Shutdown(done chan os.Signal, svc container.ServiceRegistry) {
+	<-done
+	defer os.Exit(0)
+	log.Println("received signal shutdown...")
+	time.Sleep(time.Duration(h.Config.ShutdownPeriod) * time.Second)
+	log.Println("Clean up all resources...")
+	svc.Shutdown()
+	log.Println("Server shutdown properly...")
+}
 
+func (h *Http) GracefulShutdown(svc container.ServiceRegistry) {
+	done := make(chan os.Signal, 1)
+	signal.Notify(done, os.Interrupt, syscall.SIGINT, syscall.SIGTERM)
+	go h.Shutdown(done, svc)
+}
+
+func (h *Http) Serve() {
+	log.Println("Running service on port : ", h.Config.Port)
+	h.Router.Get("/health", h.HealthCheck)
 	if h.Config.Env == shared.EnvirontmentDev {
 		docs.SwaggerInfo.Title = shared.ServiceName
 		docs.SwaggerInfo.Version = shared.ServiceVersion
