@@ -1,12 +1,13 @@
 package example
 
 import (
-	"github.com/evermos/boilerplate-go/src/services"
 	"log"
 
 	"github.com/evermos/boilerplate-go/configs"
 	"github.com/evermos/boilerplate-go/events/consumer"
+	"github.com/evermos/boilerplate-go/src/services"
 
+	"github.com/cenkalti/backoff"
 	"github.com/nsqio/go-nsq"
 )
 
@@ -31,9 +32,20 @@ func (e *EventConsumer) OnStart() {
 
 func (e *EventConsumer) processEvent(message *nsq.Message) error {
 	log.Println("Start processing event...")
-	_, err := e.ExampleService.Get()
+
+	backoffWithMaxRetry := backoff.WithMaxRetries(backoff.NewExponentialBackOff(), e.Config.BackoffMaxRetry)
+	process := func() error {
+		_, err := e.ExampleService.Get()
+		if err != nil {
+			log.Println("err : ", err.Error())
+			return err
+		}
+
+		return nil
+	}
+
+	err := backoff.Retry(process, backoffWithMaxRetry)
 	if err != nil {
-		log.Println("err : ", err.Error())
 		return err
 	}
 	return nil

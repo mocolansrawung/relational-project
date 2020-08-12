@@ -35,6 +35,9 @@ type Config struct {
 	NsqPort               string `mapstructure:"NSQ_PORT"`
 	EnableExampleConsumer bool   `mapstructure:"ENABLE_EXAMPLE_CONSUMER"`
 
+	//Retry
+	BackoffMaxRetry uint64 `mapstructure:"BACKOFF_MAX_RETRY"`
+
 	//APP
 	AppURL string `mapstructure:"APP_URL"`
 	Env    string `mapstructure:"ENV"`
