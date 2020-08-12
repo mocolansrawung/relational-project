@@ -14,8 +14,8 @@ var (
 )
 
 func main() {
-	registry()
+	container := registry()
 	http := http.Http{DB: db, Config: config, Router: router.NewRouter()}
-	http.GracefulShutdown()
+	http.GracefulShutdown(*container)
 	http.Serve()
 }
