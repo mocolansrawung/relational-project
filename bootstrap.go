@@ -1,11 +1,11 @@
 package main
 
 import (
-	"github.com/evermos/boilerplate-go/events/example"
 	"log"
 
 	"github.com/evermos/boilerplate-go/configs"
 	"github.com/evermos/boilerplate-go/container"
+	"github.com/evermos/boilerplate-go/events/example"
 	"github.com/evermos/boilerplate-go/infras"
 	routers "github.com/evermos/boilerplate-go/router"
 	"github.com/evermos/boilerplate-go/src/handlers"

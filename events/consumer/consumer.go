@@ -2,9 +2,10 @@ package consumer
 
 import (
 	"fmt"
-	"github.com/evermos/boilerplate-go/configs"
 	"log"
 	"sync"
+
+	"github.com/evermos/boilerplate-go/configs"
 
 	"github.com/nsqio/go-nsq"
 )

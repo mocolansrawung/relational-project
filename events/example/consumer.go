@@ -1,11 +1,12 @@
 package example
 
 import (
-	"github.com/nsqio/go-nsq"
 	"log"
 
 	"github.com/evermos/boilerplate-go/configs"
 	"github.com/evermos/boilerplate-go/events/consumer"
+
+	"github.com/nsqio/go-nsq"
 )
 
 type EventConsumer struct {
