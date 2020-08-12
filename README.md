@@ -69,6 +69,11 @@ example:
 localhost:8000/docs/
 ```
 
+## Generating Mock ##
+```
+# generate for service
+$ mockgen -source=src/services/service.go -package=mocks -destination=mocks/service.go -mock_names="ExampleContract=MockExampleServiceContract"
 
-
-
+# generate for repository
+$ mockgen -source=src/repositories/repositories.go -package=mocks -destination=mocks/repositories.go -mock_names="ExampleContract=MockExampleRepositoryContract"
+```
