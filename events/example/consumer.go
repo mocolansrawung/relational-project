@@ -12,8 +12,8 @@ import (
 )
 
 type EventConsumer struct {
-	Config         *configs.Config `inject:"config"`
 	nsq            consumer.NsqEventConsumer
+	Config         *configs.Config          `inject:"config"`
 	ExampleService services.ExampleContract `inject:"service.example"`
 }
 
@@ -48,6 +48,7 @@ func (e *EventConsumer) processEvent(message *nsq.Message) error {
 	if err != nil {
 		return err
 	}
+
 	return nil
 }
 
