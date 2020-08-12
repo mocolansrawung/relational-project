@@ -21,10 +21,10 @@ $ cd boilerplate-go
 # change .env.example to .env
 $ mv .env.example .env
 
-# Build the docker image first
+# Build the docker image
 $ make docker
 
-# Run the application, use http/net
+# Run the application
 $ make run
 
 # check if the containers are running
@@ -62,7 +62,7 @@ $ go get
 $ swag init
 ```
 
-go to {app_url}/docs/
+go to : {app_url}/docs/
 
 example:
 ```
