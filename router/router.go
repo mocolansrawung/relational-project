@@ -15,7 +15,9 @@ func (r *Router) NewRouter() *chi.Mux {
 	mux.Use(middleware.Logger)
 	mux.Use(middleware.Recoverer)
 
-	r.ExampleHandler.Router(mux)
+	mux.Route("/v1", func(rc chi.Router) {
+		r.ExampleHandler.Router(rc)
+	})
 
 	return mux
 }
