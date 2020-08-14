@@ -5,6 +5,7 @@ import (
 
 	"github.com/evermos/boilerplate-go/configs"
 	"github.com/evermos/boilerplate-go/container"
+	"github.com/evermos/boilerplate-go/events/example"
 	"github.com/evermos/boilerplate-go/infras"
 	routers "github.com/evermos/boilerplate-go/router"
 	"github.com/evermos/boilerplate-go/src/handlers"
@@ -29,6 +30,9 @@ func registry() *container.ServiceRegistry {
 
 	// Handler
 	c.Register("handler.example", new(handlers.ExampleHandler))
+
+	// Event
+	c.Register("consumer.example", new(example.EventConsumer))
 
 	router = &routers.Router{}
 	c.Register("router", router)
