@@ -26,6 +26,7 @@ func (e *EventConsumer) OnStart() {
 	}
 
 	if e.Config.EnableExampleConsumer {
+		log.Println("Starting example consumer...")
 		go e.nsq.Start()
 	}
 }
@@ -33,7 +34,7 @@ func (e *EventConsumer) OnStart() {
 func (e *EventConsumer) processEvent(message *nsq.Message) error {
 	log.Println("Start processing event...")
 
-	backoffWithMaxRetry := backoff.WithMaxRetries(backoff.NewExponentialBackOff(), e.Config.BackoffMaxRetry)
+	backoffWithMaxRetry := backoff.WithMaxRetries(backoff.NewExponentialBackOff(), e.Config.ConsumerBackoffMaxRetry)
 	process := func() error {
 		_, err := e.ExampleService.Get()
 		if err != nil {
@@ -52,7 +53,7 @@ func (e *EventConsumer) processEvent(message *nsq.Message) error {
 	return nil
 }
 
-func (e *EventConsumer) OnShutDown() {
-	log.Println("shutting down nsq")
+func (e *EventConsumer) OnShutdown() {
+	log.Println("Shutting down example consumer...")
 	e.nsq.Stop()
 }

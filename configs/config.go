@@ -32,11 +32,17 @@ type Config struct {
 
 	//Message Broker
 	NsqHost               string `mapstructure:"NSQ_HOST"`
-	NsqPort               string `mapstructure:"NSQ_PORT"`
+	NsqProducerPort       string `mapstructure:"NSQ_PRODUCER_PORT"`
+	NsqConsumerPort       string `mapstructure:"NSQ_CONSUMER_PORT"`
 	EnableExampleConsumer bool   `mapstructure:"ENABLE_EXAMPLE_CONSUMER"`
 
-	//Retry
-	BackoffMaxRetry uint64 `mapstructure:"BACKOFF_MAX_RETRY"`
+	//Consumer
+	ConsumerBackoffMaxRetry uint64 `mapstructure:"CONSUMER_BACKOFF_MAX_RETRY"`
+
+	//Producer
+	ProducerBackoffMaxRetry int `mapstructure:"PRODUCER_BACKOFF_MAX_RETRY"`
+	ProducerRetryBackoff    int `mapstructure:"PRODUCER_RETRY_BACKOFF"`
+	ProducerDialTimeout     int `mapstructure:"PRODUCER_DIAL_TIMEOUT"`
 
 	//APP
 	AppURL string `mapstructure:"APP_URL"`
