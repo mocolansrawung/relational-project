@@ -15,38 +15,29 @@ type ServiceRegistry struct {
 	services []interface{}
 }
 
-func (s *ServiceRegistry) bind() error {
-	for _, obj := range s.objects {
-		err := s.graph.Provide(obj)
-		if err != nil {
-			return err
-		}
-	}
-	return nil
-}
-
 func (s *ServiceRegistry) Ready(svc interface{}) {
 	switch obj := svc.(type) {
 	case Service:
 		obj.OnStart()
-		s.services = append(s.services, svc)
 	}
 }
 
 func (s *ServiceRegistry) Register(app string, svc interface{}) {
-	s.Ready(svc)
-	s.objects = append(s.objects, &inject.Object{Value: svc, Name: app})
+	err := s.graph.Provide(&inject.Object{Value: svc, Name: app})
+	if err != nil {
+		panic(err.Error())
+	}
+	s.services = append(s.services, svc)
 }
 
 func (s *ServiceRegistry) Start() error {
-	err := s.bind()
+	err := s.graph.Populate()
 	if err != nil {
 		return err
 	}
 
-	err = s.graph.Populate()
-	if err != nil {
-		return err
+	for _, svc := range s.services {
+		s.Ready(svc)
 	}
 
 	return nil
