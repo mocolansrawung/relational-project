@@ -32,8 +32,7 @@ type Config struct {
 
 	//Message Broker
 	NsqHost               string `mapstructure:"NSQ_HOST"`
-	NsqProducerPort       string `mapstructure:"NSQ_PRODUCER_PORT"`
-	NsqConsumerPort       string `mapstructure:"NSQ_CONSUMER_PORT"`
+	NsqPort               string `mapstructure:"NSQ_PORT"`
 	EnableExampleConsumer bool   `mapstructure:"ENABLE_EXAMPLE_CONSUMER"`
 
 	//Consumer
