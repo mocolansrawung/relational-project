@@ -27,7 +27,7 @@ func createNsqConfig(cfg *configs.Config) *nsq.Config {
 func (p *Producer) OnStart() {
 	log.Println("Initiliazing Producer...")
 	nsqConfig := createNsqConfig(p.Config)
-	producer, err := nsq.NewProducer(fmt.Sprintf("%s:%s", p.Config.NsqHost, p.Config.NsqProducerPort), nsqConfig)
+	producer, err := nsq.NewProducer(fmt.Sprintf("%s:%s", p.Config.NsqHost, p.Config.NsqPort), nsqConfig)
 	if err != nil {
 		log.Fatalln(err)
 	}

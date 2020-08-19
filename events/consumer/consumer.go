@@ -41,7 +41,7 @@ func (e *NsqEventConsumer) Start() {
 
 func (e *NsqEventConsumer) Consume() error {
 	e.consumer.AddHandler(nsq.HandlerFunc(e.HandleMessage))
-	err := e.consumer.ConnectToNSQD(fmt.Sprintf("%s:%s", e.Config.NsqHost, e.Config.NsqConsumerPort))
+	err := e.consumer.ConnectToNSQD(fmt.Sprintf("%s:%s", e.Config.NsqHost, e.Config.NsqPort))
 	if err != nil {
 		log.Printf("err connect to nsqd : %v \n", err)
 		return err
