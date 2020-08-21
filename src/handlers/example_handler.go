@@ -14,7 +14,9 @@ type ExampleHandler struct {
 }
 
 func (h *ExampleHandler) Router(r chi.Router) {
-	r.Get("/health-check", h.Example)
+	r.Route("/example", func(r chi.Router) {
+		r.Get("/", h.Example)
+	})
 }
 
 // Example godoc
