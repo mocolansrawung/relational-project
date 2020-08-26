@@ -1,7 +1,7 @@
 package router
 
 import (
-	"github.com/evermos/boilerplate-go/src/handlers"
+	"github.com/evermos/boilerplate-go/internal/handlers"
 	"github.com/go-chi/chi"
 	"github.com/go-chi/chi/middleware"
 )
