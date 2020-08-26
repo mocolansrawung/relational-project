@@ -5,7 +5,7 @@ import (
 
 	"github.com/go-chi/chi"
 
-	"github.com/evermos/boilerplate-go/internals/services"
+	"github.com/evermos/boilerplate-go/internal/services"
 	"github.com/evermos/boilerplate-go/shared"
 )
 

@@ -4,8 +4,8 @@ import (
 	"log"
 
 	"github.com/evermos/boilerplate-go/configs"
-	"github.com/evermos/boilerplate-go/internals/dto"
-	"github.com/evermos/boilerplate-go/internals/repositories"
+	"github.com/evermos/boilerplate-go/internal/dto"
+	"github.com/evermos/boilerplate-go/internal/repositories"
 )
 
 type ExampleService struct {

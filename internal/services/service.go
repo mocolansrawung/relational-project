@@ -1,6 +1,6 @@
 package services
 
-import "github.com/evermos/boilerplate-go/internals/dto"
+import "github.com/evermos/boilerplate-go/internal/dto"
 
 type ExampleContract interface {
 	Get() (dto.Example, error)
