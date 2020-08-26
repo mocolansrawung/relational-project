@@ -5,7 +5,7 @@ import (
 
 	"github.com/evermos/boilerplate-go/configs"
 	"github.com/evermos/boilerplate-go/events/consumer"
-	"github.com/evermos/boilerplate-go/src/services"
+	"github.com/evermos/boilerplate-go/internals/services"
 
 	"github.com/cenkalti/backoff"
 	"github.com/nsqio/go-nsq"

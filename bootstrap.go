@@ -9,9 +9,9 @@ import (
 	"github.com/evermos/boilerplate-go/events/producer"
 	"github.com/evermos/boilerplate-go/infras"
 	routers "github.com/evermos/boilerplate-go/router"
-	"github.com/evermos/boilerplate-go/src/handlers"
-	"github.com/evermos/boilerplate-go/src/repositories"
-	"github.com/evermos/boilerplate-go/src/services"
+	"github.com/evermos/boilerplate-go/internals/handlers"
+	"github.com/evermos/boilerplate-go/internals/repositories"
+	"github.com/evermos/boilerplate-go/internals/services"
 
 	_ "github.com/go-sql-driver/mysql"
 )

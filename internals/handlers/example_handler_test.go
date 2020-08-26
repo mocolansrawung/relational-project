@@ -7,7 +7,7 @@ import (
 	"testing"
 
 	"github.com/evermos/boilerplate-go/mocks"
-	"github.com/evermos/boilerplate-go/src/dto"
+	"github.com/evermos/boilerplate-go/internals/dto"
 
 	"github.com/golang/mock/gomock"
 )

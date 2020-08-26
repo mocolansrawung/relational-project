@@ -8,8 +8,8 @@ import (
 	"github.com/golang/mock/gomock"
 
 	"github.com/evermos/boilerplate-go/mocks"
-	"github.com/evermos/boilerplate-go/src/dto"
-	"github.com/evermos/boilerplate-go/src/repositories"
+	"github.com/evermos/boilerplate-go/internals/dto"
+	"github.com/evermos/boilerplate-go/internals/repositories"
 )
 
 func TestExampleService_Get(t *testing.T) {
