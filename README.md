@@ -37,10 +37,10 @@ $ curl localhost:9090
 $ make stop
 ```
 
-## Ez Development
-#### Refresh
+## Live Reload
+#### comstrek/air
 
-Use refresh are for better development experience. 
+Use comstrek/air are for better development experience. 
 
 #
 ```bash
