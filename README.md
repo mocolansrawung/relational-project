@@ -38,13 +38,11 @@ $ make stop
 ```
 
 ## Live Reload
-#### comstrek/air
-
 Use [comstrek/air](https://github.com/cosmtrek/air) are for better development experience. 
 
-##### Installation
+#### Installation
 ```bash
-# Go Classic way to install comstreak/air
+# Go Classic way to install
 $ go get -u github.com/cosmtrek/air
 
 # Create config file if config doesn't exist
