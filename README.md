@@ -40,19 +40,20 @@ $ make stop
 ## Live Reload
 #### comstrek/air
 
-Use comstrek/air are for better development experience. 
+Use [comstrek/air](https://github.com/cosmtrek/air) are for better development experience. 
 
-#
+##### Installation
 ```bash
-#install on your GO ROOT/ GO PATH
+# Go Classic way to install comstreak/air
 $ go get -u github.com/cosmtrek/air
 
-#Create config file if config doesnt exist
+# Create config file if config doesn't exist
 $ touch .air.toml
 
-#Run air with your config. If file name is `.air.toml`, just run `air`.
+# Run air with your config. If file name is `.air.toml`, just run `air`.
 $ air
 ```
+
 
 ## Documentation ##
 #### Swagger
@@ -125,13 +126,13 @@ router is a package that is used to wrap all handlers together, then use it on t
 System init (systemd, upstart, sysv) and process manager/supervisor (runit, supervisord) configs
 
 ## Tools References
-[Environment Configuration](https://github.com/spf13/viper)
-[Router](https://github.com/go-chi/chi)
-[Dependency Injection](https://github.com/facebookarchive/inject)
-[Live Reload](https://github.com/cosmtrek/air)
-[Mocks](https://github.com/golang/mock)
-[Event Consumer](https://github.com/nsqio/go-nsq)
+- [Environment Configuration](https://github.com/spf13/viper)
+- [Router](https://github.com/go-chi/chi)
+- [Dependency Injection](https://github.com/facebookarchive/inject)
+- [Live Reload](https://github.com/cosmtrek/air)
+- [Mocks](https://github.com/golang/mock)
+- [Event Consumer](https://github.com/nsqio/go-nsq)
 
 ## Diagram
-Here's the diagram to explanation about project structre
+Here's the diagram to explanation about project structre.
 [Diagram](https://drive.google.com/file/d/1uxb2dwHA1GFWuPs9ljhsMBMCjP6gVGtk/view)
