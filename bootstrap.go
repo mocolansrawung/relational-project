@@ -4,20 +4,20 @@ import (
 	"log"
 
 	"github.com/evermos/boilerplate-go/configs"
-	"github.com/evermos/boilerplate-go/container"
+	"github.com/evermos/boilerplate-go/di"
 	"github.com/evermos/boilerplate-go/events/example"
 	"github.com/evermos/boilerplate-go/events/producer"
 	"github.com/evermos/boilerplate-go/infras"
-	routers "github.com/evermos/boilerplate-go/router"
 	"github.com/evermos/boilerplate-go/internal/handlers"
 	"github.com/evermos/boilerplate-go/internal/repositories"
 	"github.com/evermos/boilerplate-go/internal/services"
+	routers "github.com/evermos/boilerplate-go/router"
 
 	_ "github.com/go-sql-driver/mysql"
 )
 
-func registry() *container.ServiceRegistry {
-	c := container.NewContainer()
+func registry() *di.ServiceRegistry {
+	c := di.NewContainer()
 	config = configs.Get()
 	db = &infras.MysqlConn{Write: infras.WriteMysqlDB(*config), Read: infras.ReadMysqlDB(*config)}
 	c.Register("config", config)

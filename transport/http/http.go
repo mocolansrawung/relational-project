@@ -10,7 +10,7 @@ import (
 	"time"
 
 	"github.com/evermos/boilerplate-go/configs"
-	"github.com/evermos/boilerplate-go/container"
+	"github.com/evermos/boilerplate-go/di"
 	"github.com/evermos/boilerplate-go/docs"
 	"github.com/evermos/boilerplate-go/infras"
 	"github.com/evermos/boilerplate-go/shared"
@@ -25,7 +25,7 @@ type Http struct {
 	Router *chi.Mux
 }
 
-func (h *Http) Shutdown(done chan os.Signal, svc container.ServiceRegistry) {
+func (h *Http) Shutdown(done chan os.Signal, svc di.ServiceRegistry) {
 	<-done
 	defer os.Exit(0)
 	log.Println("received signal shutdown...")
@@ -35,7 +35,7 @@ func (h *Http) Shutdown(done chan os.Signal, svc container.ServiceRegistry) {
 	log.Println("Server shutdown properly...")
 }
 
-func (h *Http) GracefulShutdown(svc container.ServiceRegistry) {
+func (h *Http) GracefulShutdown(svc di.ServiceRegistry) {
 	done := make(chan os.Signal, 1)
 	signal.Notify(done, os.Interrupt, syscall.SIGINT, syscall.SIGTERM)
 	go h.Shutdown(done, svc)
