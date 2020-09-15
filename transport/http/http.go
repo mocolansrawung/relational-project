@@ -47,7 +47,7 @@ func (h *Http) Serve() {
 	if h.Config.Env == shared.EnvirontmentDev {
 		docs.SwaggerInfo.Title = shared.ServiceName
 		docs.SwaggerInfo.Version = shared.ServiceVersion
-		swaggerURL := fmt.Sprintf("%s/swagger/doc.json", h.Config.AppURL)
+		swaggerURL := fmt.Sprintf("%s/docs/doc.json", h.Config.AppURL)
 		h.Router.Get("/docs/*", httpSwagger.Handler(httpSwagger.URL(swaggerURL)))
 	}
 
