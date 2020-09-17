@@ -2,9 +2,9 @@ package main
 
 import (
 	"github.com/evermos/boilerplate-go/configs"
-	"github.com/evermos/boilerplate-go/transport/http"
 	"github.com/evermos/boilerplate-go/infras"
 	routers "github.com/evermos/boilerplate-go/router"
+	"github.com/evermos/boilerplate-go/transport/http"
 )
 
 var (

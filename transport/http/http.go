@@ -14,7 +14,6 @@ import (
 	"github.com/evermos/boilerplate-go/docs"
 	"github.com/evermos/boilerplate-go/infras"
 	"github.com/evermos/boilerplate-go/shared"
-
 	"github.com/go-chi/chi"
 	httpSwagger "github.com/swaggo/http-swagger"
 )
@@ -54,6 +53,16 @@ func (h *Http) Serve() {
 	netHttp.ListenAndServe(":"+h.Config.Port, h.Router)
 }
 
+// HealthCheck performs a health check on the server. Usually required by
+// Kubernetes to check if the service is healthy.
+// @Summary Health Check
+// @Description Health Check Endpoint
+// @Tags service
+// @Produce json
+// @Accept json
+// @Success 200 {object} shared.ResponseSuccess
+// @Failure 400 {object} shared.ResponseFailed
+// @Router /health [get]
 func (h *Http) HealthCheck(w netHttp.ResponseWriter, r *netHttp.Request) {
 	if err := h.DB.Read.Ping(); err != nil {
 		shared.Failed(w, r, shared.WriteFailed(500, "Server is unhealthy", nil))

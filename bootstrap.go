@@ -8,9 +8,8 @@ import (
 	"github.com/evermos/boilerplate-go/events/example"
 	"github.com/evermos/boilerplate-go/events/producer"
 	"github.com/evermos/boilerplate-go/infras"
+	exampleDomain "github.com/evermos/boilerplate-go/internal/domain/example"
 	"github.com/evermos/boilerplate-go/internal/handlers"
-	"github.com/evermos/boilerplate-go/internal/repositories"
-	"github.com/evermos/boilerplate-go/internal/services"
 	routers "github.com/evermos/boilerplate-go/router"
 
 	_ "github.com/go-sql-driver/mysql"
@@ -23,11 +22,9 @@ func registry() *di.ServiceRegistry {
 	c.Register("config", config)
 	c.Register("db", db)
 
-	// Repository
-	c.Register("repository.example", new(repositories.ExampleRepository))
-
-	// Service
-	c.Register("service.example", new(services.ExampleService))
+	// Domain - Example
+	c.Register("example.someRepository", new(exampleDomain.SomeRepositoryMySQL))
+	c.Register("example.someService", new(exampleDomain.SomeServiceImpl))
 
 	// Handler
 	c.Register("handler.example", new(handlers.ExampleHandler))

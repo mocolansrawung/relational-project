@@ -5,16 +5,17 @@ import (
 
 	"github.com/evermos/boilerplate-go/configs"
 	"github.com/evermos/boilerplate-go/events/consumer"
-	"github.com/evermos/boilerplate-go/internal/services"
+	"github.com/evermos/boilerplate-go/internal/domain/example"
+	"github.com/gofrs/uuid"
 
 	"github.com/cenkalti/backoff"
 	"github.com/nsqio/go-nsq"
 )
 
 type EventConsumer struct {
-	nsq            consumer.NsqEventConsumer
-	Config         *configs.Config          `inject:"config"`
-	ExampleService services.ExampleContract `inject:"service.example"`
+	nsq         consumer.NsqEventConsumer
+	Config      *configs.Config     `inject:"config"`
+	SomeService example.SomeService `inject:"example.someService"`
 }
 
 func (e *EventConsumer) OnStart() {
@@ -36,7 +37,8 @@ func (e *EventConsumer) processEvent(message *nsq.Message) error {
 
 	backoffWithMaxRetry := backoff.WithMaxRetries(backoff.NewExponentialBackOff(), e.Config.ConsumerBackoffMaxRetry)
 	process := func() error {
-		_, err := e.ExampleService.Get()
+		randomID, err := uuid.NewV4()
+		_, err = e.SomeService.ResolveByID(randomID)
 		if err != nil {
 			log.Println("err : ", err.Error())
 			return err
