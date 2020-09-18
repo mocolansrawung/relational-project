@@ -2,7 +2,6 @@ package http
 
 import (
 	"fmt"
-	"log"
 	netHttp "net/http"
 	"os"
 	"os/signal"
@@ -15,6 +14,7 @@ import (
 	"github.com/evermos/boilerplate-go/infras"
 	"github.com/evermos/boilerplate-go/shared"
 	"github.com/go-chi/chi"
+	"github.com/rs/zerolog/log"
 	httpSwagger "github.com/swaggo/http-swagger"
 )
 
@@ -27,11 +27,11 @@ type Http struct {
 func (h *Http) Shutdown(done chan os.Signal, svc di.ServiceRegistry) {
 	<-done
 	defer os.Exit(0)
-	log.Println("received signal shutdown...")
+	log.Info().Msg("received signal shutdown...")
 	time.Sleep(time.Duration(h.Config.ShutdownPeriod) * time.Second)
-	log.Println("Clean up all resources...")
+	log.Info().Msg("Clean up all resources...")
 	svc.Shutdown()
-	log.Println("Server shutdown properly...")
+	log.Info().Msg("Server shutdown properly...")
 }
 
 func (h *Http) GracefulShutdown(svc di.ServiceRegistry) {
@@ -41,7 +41,7 @@ func (h *Http) GracefulShutdown(svc di.ServiceRegistry) {
 }
 
 func (h *Http) Serve() {
-	log.Println("Running service on port : ", h.Config.Port)
+	log.Info().Str("port", h.Config.Port).Msg("Running HTTP server...")
 	h.Router.Get("/health", h.HealthCheck)
 	if h.Config.Env == shared.EnvirontmentDev {
 		docs.SwaggerInfo.Title = shared.ServiceName

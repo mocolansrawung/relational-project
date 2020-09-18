@@ -1,14 +1,15 @@
 package configs
 
 import (
-	"log"
 	"sync"
 
+	"github.com/rs/zerolog/log"
 	"github.com/spf13/viper"
 )
 
 // Config config struct consist of data that provided from env
 type Config struct {
+	LogLevel       string `mapstructure:"LOG_LEVEL"`
 	Port           string `mapstructure:"PORT"`
 	ShutdownPeriod int64  `mapstructure:"SHUTDOWN_PERIOD"`
 
@@ -56,14 +57,14 @@ func Get() *Config {
 	err := viper.ReadInConfig()
 
 	if err != nil {
-		log.Fatalf("Error while reading config file %s", err)
+		log.Fatal().Err(err).Msg("Failed reading config file")
 	}
 
 	once := sync.Once{}
 	once.Do(func() {
 		err = viper.Unmarshal(&conf)
 		if err != nil {
-			log.Fatalln(err)
+			log.Fatal().Err(err).Msg("")
 		}
 	})
 

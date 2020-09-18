@@ -2,12 +2,11 @@ package producer
 
 import (
 	"fmt"
-	"log"
 	"time"
 
 	"github.com/evermos/boilerplate-go/configs"
-
 	"github.com/nsqio/go-nsq"
+	"github.com/rs/zerolog/log"
 )
 
 type Producer struct {
@@ -25,11 +24,11 @@ func createNsqConfig(cfg *configs.Config) *nsq.Config {
 }
 
 func (p *Producer) OnStart() {
-	log.Println("Initiliazing Producer...")
+	log.Info().Msg("Initiliazing Producer...")
 	nsqConfig := createNsqConfig(p.Config)
 	producer, err := nsq.NewProducer(fmt.Sprintf("%s:%s", p.Config.NsqHost, p.Config.NsqPort), nsqConfig)
 	if err != nil {
-		log.Fatalln(err)
+		log.Fatal().Msg(err.Error())
 	}
 	p.Producer = producer
 }
@@ -43,6 +42,6 @@ func (p *Producer) Emit(message, topic string) error {
 }
 
 func (p *Producer) OnShutdown() {
-	log.Println("Stopping Producer...")
+	log.Info().Msg("Stopping Producer...")
 	p.Producer.Stop()
 }

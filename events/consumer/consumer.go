@@ -2,12 +2,11 @@ package consumer
 
 import (
 	"fmt"
-	"log"
 	"sync"
 
 	"github.com/evermos/boilerplate-go/configs"
-
 	"github.com/nsqio/go-nsq"
+	"github.com/rs/zerolog/log"
 )
 
 var (
@@ -28,14 +27,14 @@ func (e *NsqEventConsumer) Start() {
 	e.nsq = nsq.NewConfig()
 	consumer, err := nsq.NewConsumer(e.Topic, e.Channel, e.nsq)
 	if err != nil {
-		log.Fatalf("error creating consumer %v", err.Error())
+		log.Fatal().Err(err).Msg("failed creating consumer")
 		return
 	}
 	e.consumer = consumer
 
 	err = e.Consume()
 	if err != nil {
-		log.Printf("err consuming : %v", err)
+		log.Error().Err(err).Msg("failed consuming event")
 	}
 }
 
@@ -51,6 +50,6 @@ func (e *NsqEventConsumer) Consume() error {
 }
 
 func (e *NsqEventConsumer) Stop() {
-	log.Println("stoping consumer...")
+	log.Info().Msg("stoping consumer...")
 	e.consumer.Stop()
 }

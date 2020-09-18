@@ -26,13 +26,13 @@ func registry() *di.ServiceRegistry {
 	c.Register("example.someRepository", new(exampleDomain.SomeRepositoryMySQL))
 	c.Register("example.someService", new(exampleDomain.SomeServiceImpl))
 
-	// Handler
+	// Handlers
 	c.Register("handler.example", new(handlers.ExampleHandler))
 
-	// Event
+	// Event consumers
 	c.Register("consumer.example", new(example.EventConsumer))
 
-	// Producer
+	// Event producers
 	c.Register("producer", new(producer.Producer))
 
 	router = &routers.Router{}

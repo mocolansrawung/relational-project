@@ -21,6 +21,7 @@ require (
 	github.com/jmoiron/sqlx v1.2.0
 	github.com/nsqio/go-nsq v1.0.8
 	github.com/onsi/ginkgo v1.14.0 // indirect
+	github.com/rs/zerolog v1.20.0
 	github.com/spf13/viper v1.7.1
 	github.com/stretchr/testify v1.3.0
 	github.com/swaggo/http-swagger v0.0.0-20200308142732-58ac5e232fba
