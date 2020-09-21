@@ -43,7 +43,7 @@ func (h *Http) GracefulShutdown(svc di.ServiceRegistry) {
 func (h *Http) Serve() {
 	log.Info().Str("port", h.Config.Port).Msg("Running HTTP server...")
 	h.Router.Get("/health", h.HealthCheck)
-	if h.Config.Env == shared.EnvirontmentDev {
+	if h.Config.Env == shared.DevEnvironment {
 		docs.SwaggerInfo.Title = shared.ServiceName
 		docs.SwaggerInfo.Version = shared.ServiceVersion
 		swaggerURL := fmt.Sprintf("%s/docs/doc.json", h.Config.AppURL)
