@@ -7,13 +7,16 @@ import (
 	"github.com/gofrs/uuid"
 
 	"github.com/evermos/boilerplate-go/internal/domain/example"
-	"github.com/evermos/boilerplate-go/shared"
+	"github.com/evermos/boilerplate-go/shared/failure"
+	"github.com/evermos/boilerplate-go/transport/http/response"
 )
 
+// ExampleHandler is the HTTP handler for Example Domain.
 type ExampleHandler struct {
 	SomeService example.SomeService `inject:"example.someService"`
 }
 
+// Router sets up the router for this domain.
 func (h *ExampleHandler) Router(r chi.Router) {
 	r.Route("/example", func(r chi.Router) {
 		r.Get("/{id}", h.ResolveByID)
@@ -26,22 +29,24 @@ func (h *ExampleHandler) Router(r chi.Router) {
 // @Tags example
 // @Param id path string true "The entity's identifier."
 // @Produce json
-// @Success 200 {object} shared.ResponseSuccess
-// @Failure 400 {object} shared.ResponseFailed
+// @Success 200 {object} response.Base{data=example.SomeEntityFormat}
+// @Failure 400 {object} response.Base
+// @Failure 404 {object} response.Base
+// @Failure 500 {object} response.Base
 // @Router /v1/example/{id} [get]
 func (h *ExampleHandler) ResolveByID(w http.ResponseWriter, r *http.Request) {
 	idString := chi.URLParam(r, "id")
 	id, err := uuid.FromString(idString)
 	if err != nil {
-		shared.Failed(w, r, shared.WriteFailed(400, "error resolving entity", err.Error()))
+		response.WithError(w, failure.BadRequest(err))
 		return
 	}
 
 	entity, err := h.SomeService.ResolveByID(id)
 	if err != nil {
-		shared.Failed(w, r, shared.WriteFailed(400, "error resolving entity", err.Error()))
+		response.WithError(w, err)
 		return
 	}
 
-	shared.Success(w, r, shared.WriteSuccess(200, "success", entity))
+	response.WithJSON(w, http.StatusOK, entity)
 }

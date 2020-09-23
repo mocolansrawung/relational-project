@@ -2,6 +2,7 @@ package http
 
 import (
 	"fmt"
+	"net/http"
 	netHttp "net/http"
 	"os"
 	"os/signal"
@@ -13,6 +14,7 @@ import (
 	"github.com/evermos/boilerplate-go/docs"
 	"github.com/evermos/boilerplate-go/infras"
 	"github.com/evermos/boilerplate-go/shared"
+	"github.com/evermos/boilerplate-go/transport/http/response"
 	"github.com/go-chi/chi"
 	"github.com/rs/zerolog/log"
 	httpSwagger "github.com/swaggo/http-swagger"
@@ -60,13 +62,14 @@ func (h *Http) Serve() {
 // @Tags service
 // @Produce json
 // @Accept json
-// @Success 200 {object} shared.ResponseSuccess
-// @Failure 400 {object} shared.ResponseFailed
+// @Success 200 {object} response.Base
+// @Failure 503 {object} response.Base
 // @Router /health [get]
 func (h *Http) HealthCheck(w netHttp.ResponseWriter, r *netHttp.Request) {
 	if err := h.DB.Read.Ping(); err != nil {
-		shared.Failed(w, r, shared.WriteFailed(500, "Server is unhealthy", nil))
+		log.Error().Err(err).Msg("")
+		response.WithUnhealthy(w)
 		return
 	}
-	shared.Success(w, r, shared.WriteSuccess(200, "Server is alive", nil))
+	response.WithMessage(w, http.StatusOK, "OK")
 }

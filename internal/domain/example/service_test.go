@@ -36,6 +36,7 @@ func TestExampleService(t *testing.T) {
 				},
 				returns: &example.SomeEntity{
 					Name:      "John Doe",
+					Status:    example.SomeEntityStatusActive,
 					Created:   time.Now(),
 					CreatedBy: getRandomUUID(),
 					Updated:   null.TimeFrom(time.Now()),
