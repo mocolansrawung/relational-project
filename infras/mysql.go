@@ -6,9 +6,10 @@ import (
 	"net/url"
 
 	"github.com/evermos/boilerplate-go/configs"
-	"github.com/rs/zerolog/log"
-
+	// use MySQL driver
+	_ "github.com/go-sql-driver/mysql"
 	"github.com/jmoiron/sqlx"
+	"github.com/rs/zerolog/log"
 )
 
 const (
@@ -16,31 +17,61 @@ const (
 	maxOpenConnection = 10
 )
 
-//MysqlConn struct connection consist of master/slave connection
-type MysqlConn struct {
+// MySQLConn wraps a pair of read/write MySQL connections.
+type MySQLConn struct {
 	Write *sqlx.DB
 	Read  *sqlx.DB
 }
 
-// WriteMysqlDB - function for creating database connection for write-access
-func WriteMysqlDB(config configs.Config) *sqlx.DB {
-	return CreateDBConnection(fmt.Sprintf("%s:%s@tcp(%s)/%s?charset=utf8&loc=%s&parseTime=true",
-		config.WriteDatabaseUsername, config.WriteDatabasePassword, config.WriteDatabaseHost, config.WriteDatabaseName, url.QueryEscape(config.WriteDatabaseTimeZone)))
+// CreateMySQLWriteConn creates a database connection for write access.
+func CreateMySQLWriteConn(config configs.Config) *sqlx.DB {
+	return CreateDBConnection(
+		"write",
+		config.DB.MySQL.Write.Username,
+		config.DB.MySQL.Write.Password,
+		config.DB.MySQL.Write.Host,
+		config.DB.MySQL.Write.Name,
+		config.DB.MySQL.Write.Timezone)
 
 }
 
-// ReadMysqlDB function for creating database connection for read-access
-func ReadMysqlDB(config configs.Config) *sqlx.DB {
-	return CreateDBConnection(fmt.Sprintf("%s:%s@tcp(%s)/%s?charset=utf8&loc=%s&parseTime=true",
-		config.ReadDatabaseUsername, config.ReadDatabasePassword, config.ReadDatabaseHost, config.ReadDatabaseName, url.QueryEscape(config.ReadDatabaseTimeZone)))
+// CreateMySQLReadConn creates a database connection for read access.
+func CreateMySQLReadConn(config configs.Config) *sqlx.DB {
+	return CreateDBConnection(
+		"read",
+		config.DB.MySQL.Read.Username,
+		config.DB.MySQL.Read.Password,
+		config.DB.MySQL.Read.Host,
+		config.DB.MySQL.Read.Name,
+		config.DB.MySQL.Read.Timezone)
 
 }
 
-// CreateDBConnection function for creating database connection
-func CreateDBConnection(descriptor string) *sqlx.DB {
+// CreateDBConnection creates a database connection.
+func CreateDBConnection(name, username, password, host, dbName, timeZone string) *sqlx.DB {
+	descriptor := fmt.Sprintf(
+		"%s:%s@tcp(%s)/%s?charset=utf8&loc=%s&parseTime=true",
+		username,
+		password,
+		host,
+		dbName,
+		url.QueryEscape(timeZone))
 	db, err := sqlx.Connect("mysql", descriptor)
 	if err != nil {
-		log.Err(err).Msgf("error connecting to DB: %s", descriptor)
+		log.
+			Fatal().
+			Err(err).
+			Str("name", name).
+			Str("host", host).
+			Str("dbName", dbName).
+			Msg("error connecting to database")
+	} else {
+		log.
+			Info().
+			Str("name", name).
+			Str("host", host).
+			Str("dbName", dbName).
+			Msg("connected to database")
 	}
 	db.SetMaxIdleConns(maxIdleConnection)
 	db.SetMaxOpenConns(maxOpenConnection)
@@ -48,9 +79,10 @@ func CreateDBConnection(descriptor string) *sqlx.DB {
 	return db
 }
 
-func OpenMock(db *sql.DB) *MysqlConn {
+// OpenMock opens a database connection for mocking purposes.
+func OpenMock(db *sql.DB) *MySQLConn {
 	conn := sqlx.NewDb(db, "mysql")
-	return &MysqlConn{
+	return &MySQLConn{
 		Write: conn,
 		Read:  conn,
 	}

@@ -11,7 +11,6 @@ type Service interface {
 
 type ServiceRegistry struct {
 	graph    inject.Graph
-	objects  []*inject.Object
 	services []interface{}
 }
 

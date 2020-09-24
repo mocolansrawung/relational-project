@@ -22,7 +22,7 @@ import (
 
 type Http struct {
 	Config *configs.Config
-	DB     *infras.MysqlConn
+	DB     *infras.MySQLConn
 	Router *chi.Mux
 }
 
@@ -30,7 +30,7 @@ func (h *Http) Shutdown(done chan os.Signal, svc di.ServiceRegistry) {
 	<-done
 	defer os.Exit(0)
 	log.Info().Msg("received signal shutdown...")
-	time.Sleep(time.Duration(h.Config.ShutdownPeriod) * time.Second)
+	time.Sleep(time.Duration(h.Config.Server.ShutdownPeriod) * time.Second)
 	log.Info().Msg("Clean up all resources...")
 	svc.Shutdown()
 	log.Info().Msg("Server shutdown properly...")
@@ -43,16 +43,19 @@ func (h *Http) GracefulShutdown(svc di.ServiceRegistry) {
 }
 
 func (h *Http) Serve() {
-	log.Info().Str("port", h.Config.Port).Msg("Running HTTP server...")
+	log.Info().Str("port", h.Config.Server.Port).Msg("Running HTTP server...")
 	h.Router.Get("/health", h.HealthCheck)
-	if h.Config.Env == shared.DevEnvironment {
+	if h.Config.App.Env == shared.DevEnvironment {
 		docs.SwaggerInfo.Title = shared.ServiceName
 		docs.SwaggerInfo.Version = shared.ServiceVersion
-		swaggerURL := fmt.Sprintf("%s/swagger/doc.json", h.Config.AppURL)
+		swaggerURL := fmt.Sprintf("%s/swagger/doc.json", h.Config.App.URL)
 		h.Router.Get("/swagger/*", httpSwagger.Handler(httpSwagger.URL(swaggerURL)))
 	}
 
-	netHttp.ListenAndServe(":"+h.Config.Port, h.Router)
+	err := netHttp.ListenAndServe(":"+h.Config.Server.Port, h.Router)
+	if err != nil {
+		log.Error().Err(err).Msg("")
+	}
 }
 
 // HealthCheck performs a health check on the server. Usually required by

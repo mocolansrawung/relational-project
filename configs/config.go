@@ -7,46 +7,48 @@ import (
 	"github.com/spf13/viper"
 )
 
-// Config config struct consist of data that provided from env
+// Config is a struct that will receive configuration options via environment
+// variables.
 type Config struct {
-	LogLevel       string `mapstructure:"LOG_LEVEL"`
-	Port           string `mapstructure:"PORT"`
-	ShutdownPeriod int64  `mapstructure:"SHUTDOWN_PERIOD"`
+	App struct {
+		URL string `mapstructure:"URL"`
+		Env string `mapstructure:"ENV"`
+	}
 
-	// Mysql
-	WriteDatabaseHost     string `mapstructure:"WRITE_DB_HOST"`
-	WriteDatabaseUsername string `mapstructure:"WRITE_DB_USER"`
-	WriteDatabasePassword string `mapstructure:"WRITE_DB_PASSWORD"`
-	WriteDatabaseName     string `mapstructure:"WRITE_DB_NAME"`
-	WriteDatabaseTimeZone string `mapstructure:"WRITE_DB_TIME_ZONE"`
+	Cache struct {
+		Redis struct {
+			Primary struct {
+				Host     string `mapstructure:"HOST"`
+				Port     string `mapstructure:"PORT"`
+				Password string `mapstructure:"PASSWORD"`
+			}
+		}
+	}
 
-	ReadDatabaseHost     string `mapstructure:"READ_DB_HOST"`
-	ReadDatabaseUsername string `mapstructure:"READ_DB_USER"`
-	ReadDatabasePassword string `mapstructure:"READ_DB_PASSWORD"`
-	ReadDatabaseName     string `mapstructure:"READ_DB_NAME"`
-	ReadDatabaseTimeZone string `mapstructure:"READ_DB_TIME_ZONE"`
+	DB struct {
+		MySQL struct {
+			Read struct {
+				Host     string `mapstructure:"HOST"`
+				Username string `mapstructure:"USER"`
+				Password string `mapstructure:"PASSWORD"`
+				Name     string `mapstructure:"NAME"`
+				Timezone string `mapstructure:"TIMEZONE"`
+			}
+			Write struct {
+				Host     string `mapstructure:"HOST"`
+				Username string `mapstructure:"USER"`
+				Password string `mapstructure:"PASSWORD"`
+				Name     string `mapstructure:"NAME"`
+				Timezone string `mapstructure:"TIMEZONE"`
+			}
+		}
+	}
 
-	// Redis
-	RedisHost     string `mapstructure:"REDIS_HOST"`
-	RedisPort     string `mapstructure:"REDIS_PORT"`
-	RedisPassword string `mapstructure:"REDIS_PASSWORD"`
-
-	// Message Broker
-	NsqHost               string `mapstructure:"NSQ_HOST"`
-	NsqPort               string `mapstructure:"NSQ_PORT"`
-	EnableExampleConsumer bool   `mapstructure:"ENABLE_EXAMPLE_CONSUMER"`
-
-	// Consumer
-	ConsumerBackoffMaxRetry uint64 `mapstructure:"CONSUMER_BACKOFF_MAX_RETRY"`
-
-	// Producer
-	ProducerBackoffMaxRetry int `mapstructure:"PRODUCER_BACKOFF_MAX_RETRY"`
-	ProducerRetryBackoff    int `mapstructure:"PRODUCER_RETRY_BACKOFF"`
-	ProducerDialTimeout     int `mapstructure:"PRODUCER_DIAL_TIMEOUT"`
-
-	// APP
-	AppURL string `mapstructure:"APP_URL"`
-	Env    string `mapstructure:"ENV"`
+	Server struct {
+		LogLevel       string `mapstructure:"LOG_LEVEL"`
+		Port           string `mapstructure:"PORT"`
+		ShutdownPeriod int64  `mapstructure:"SHUTDOWN_PERIOD_SECONDS"`
+	}
 }
 
 var conf Config

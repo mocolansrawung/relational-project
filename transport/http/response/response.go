@@ -5,6 +5,7 @@ import (
 	"net/http"
 
 	"github.com/evermos/boilerplate-go/shared/failure"
+	"github.com/rs/zerolog/log"
 )
 
 // Base is the base object of all responses
@@ -50,5 +51,8 @@ func respond(w http.ResponseWriter, code int, payload interface{}) {
 	response, _ := json.Marshal(payload)
 	w.Header().Set("Content-Type", "application/json")
 	w.WriteHeader(code)
-	w.Write(response)
+	_, err := w.Write(response)
+	if err != nil {
+		log.Error().Err(err).Msg("")
+	}
 }

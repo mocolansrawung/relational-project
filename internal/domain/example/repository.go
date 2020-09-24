@@ -30,7 +30,7 @@ type SomeRepository interface {
 
 // SomeRepositoryMySQL is the MySQL-backed implementation of SomeRepository
 type SomeRepositoryMySQL struct {
-	DB *infras.MysqlConn `inject:"db"`
+	DB *infras.MySQLConn `inject:"db"`
 }
 
 // ResolveByID resolves a SomeEntity by its ID
