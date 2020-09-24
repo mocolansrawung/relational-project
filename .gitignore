@@ -4,7 +4,8 @@ engine
 .env
 
 # Ignore VS Code stuff
-.vscode/
+.vscode/*
+!.vscode/launch.json
 
 # Ignore automatically generated Swagger docs
 /docs*

@@ -2,17 +2,14 @@
 FROM golang:1.14.2-alpine3.11 as builder
 
 RUN apk update && apk upgrade && \
-    apk --update add git make
+    apk --update add git make build-base
 
 WORKDIR /app
 
-RUN go get -u github.com/swaggo/swag/cmd/swag
-
 COPY . .
 
-RUN swag init
-
-RUN make engine
+RUN go generate ./...
+RUN go build -o goBinary .
 
 # Distribution
 FROM alpine:latest
@@ -26,9 +23,6 @@ WORKDIR /app
 
 EXPOSE 9090
 
-COPY --from=builder /app/engine /app
+COPY --from=builder /app/goBinary /app
 
-# enable if running kube
-RUN ln -s /env/.env .
-
-CMD /app/engine
+CMD /app/goBinary

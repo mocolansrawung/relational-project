@@ -23,7 +23,7 @@ type NsqEventConsumer struct {
 }
 
 func (e *NsqEventConsumer) Start() {
-	log.Printf("Starting nsq consumer : topic %v - channel %v \n", e.Topic, e.Channel)
+	log.Info().Msgf("Starting nsq consumer : topic %v - channel %v", e.Topic, e.Channel)
 	e.nsq = nsq.NewConfig()
 	consumer, err := nsq.NewConsumer(e.Topic, e.Channel, e.nsq)
 	if err != nil {
@@ -40,9 +40,10 @@ func (e *NsqEventConsumer) Start() {
 
 func (e *NsqEventConsumer) Consume() error {
 	e.consumer.AddHandler(nsq.HandlerFunc(e.HandleMessage))
-	err := e.consumer.ConnectToNSQD(fmt.Sprintf("%s:%s", e.Config.NsqHost, e.Config.NsqPort))
+	nsqdAddress := fmt.Sprintf("%s:%s", e.Config.NsqHost, e.Config.NsqPort)
+	err := e.consumer.ConnectToNSQD(nsqdAddress)
 	if err != nil {
-		log.Printf("err connect to nsqd : %v \n", err)
+		log.Err(err).Msgf("Failed to connect to Nsq %v", nsqdAddress)
 		return err
 	}
 	waitGroup.Wait()

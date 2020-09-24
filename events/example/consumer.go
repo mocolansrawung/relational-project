@@ -1,12 +1,11 @@
 package example
 
 import (
-	"log"
-
 	"github.com/evermos/boilerplate-go/configs"
 	"github.com/evermos/boilerplate-go/events/consumer"
 	"github.com/evermos/boilerplate-go/internal/domain/example"
 	"github.com/gofrs/uuid"
+	"github.com/rs/zerolog/log"
 
 	"github.com/cenkalti/backoff"
 	"github.com/nsqio/go-nsq"
@@ -27,20 +26,20 @@ func (e *EventConsumer) OnStart() {
 	}
 
 	if e.Config.EnableExampleConsumer {
-		log.Println("Starting example consumer...")
+		log.Info().Msg("Starting example consumer...")
 		go e.nsq.Start()
 	}
 }
 
 func (e *EventConsumer) processEvent(message *nsq.Message) error {
-	log.Println("Start processing event...")
+	log.Info().Msg("Start processing event...")
 
 	backoffWithMaxRetry := backoff.WithMaxRetries(backoff.NewExponentialBackOff(), e.Config.ConsumerBackoffMaxRetry)
 	process := func() error {
 		randomID, err := uuid.NewV4()
 		_, err = e.SomeService.ResolveByID(randomID)
 		if err != nil {
-			log.Println("err : ", err.Error())
+			log.Err(err).Msgf("Failed to resolve id %v", randomID)
 			return err
 		}
 
@@ -56,6 +55,6 @@ func (e *EventConsumer) processEvent(message *nsq.Message) error {
 }
 
 func (e *EventConsumer) OnShutdown() {
-	log.Println("Shutting down example consumer...")
+	log.Info().Msg("Shutting down example consumer...")
 	e.nsq.Stop()
 }

@@ -3,10 +3,10 @@ package infras
 import (
 	"database/sql"
 	"fmt"
-	"log"
 	"net/url"
 
 	"github.com/evermos/boilerplate-go/configs"
+	"github.com/rs/zerolog/log"
 
 	"github.com/jmoiron/sqlx"
 )
@@ -40,7 +40,7 @@ func ReadMysqlDB(config configs.Config) *sqlx.DB {
 func CreateDBConnection(descriptor string) *sqlx.DB {
 	db, err := sqlx.Connect("mysql", descriptor)
 	if err != nil {
-		log.Fatalf("error connecting to DB: %s", descriptor)
+		log.Err(err).Msgf("error connecting to DB: %s", descriptor)
 	}
 	db.SetMaxIdleConns(maxIdleConnection)
 	db.SetMaxOpenConns(maxOpenConnection)

@@ -1,6 +1,6 @@
 package example
 
-//go:generate mockgen -source repository.go -destination mock/repository_mock.go -package example_mock
+//go:generate go run github.com/golang/mock/mockgen -source repository.go -destination mock/repository_mock.go -package example_mock
 
 import (
 	"errors"

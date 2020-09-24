@@ -8,7 +8,7 @@ This is an boilerplate Architecture in Go (Golang) projects.
 ## How To Run 
 
 #### Run the Applications
-```bash
+```shell
 #move to directory
 $ cd workspace
 
@@ -18,63 +18,47 @@ $ git clone https://github.com/evermos/boilerplate-go.git
 #move to project
 $ cd boilerplate-go
 
-# change .env.example to .env
-$ mv .env.example .env
-
-# Build the docker image
-$ make docker
-
-# Run the application
 $ make run
-
-# check if the containers are running
-$ docker ps
-
-# Execute the call
-$ curl localhost:9090
-
-# Stop
-$ make stop
 ```
 
 ## Live Reload
-Use [comstrek/air](https://github.com/cosmtrek/air) are for better development experience. 
+To develop the app using live reload simply execute
 
-#### Installation
-```bash
-# Go Classic way to install
-$ go get -u github.com/cosmtrek/air
-
-# Create config file if config doesn't exist
-$ touch .air.toml
-
-# Run air with your config. If file name is `.air.toml`, just run `air`.
-$ air
+```shell
+make dev
 ```
 
+## Debugging
+To debug your application on VS Code add some breakpoint particular line, then simplly hit `f5`
+![Debugging Demo](assets/debugging-demo.png)
 
-## Documentation ##
-#### Swagger
-#
-```bash
-$ go get
-$ swag init
-```
 
-go to : {app_url}/docs/
-
-example:
-```
-localhost:8000/docs/
-```
+## Documentation
+Swagger are automatically generated and accessible after `make run` or `make dev` on `<your-url>/swagger/index.html`
 
 ## Generating Mock ##
-```
-# generate for service
-$ mockgen -source=internal/services/service.go -package=mocks -destination=mocks/service.go -mock_names="ExampleContract=MockExampleServiceContract"
+Mock source automatically generated when executing `make run` or `make dev`. When you add a go file and it require mock add `//go:generate go run github.com/golang/mock/mockgen -source <your-file-name>.go -destination mock/<your-file-name>_mock.go -package <your-package-name>_mock` comment right after your package declaration
 
-# generate for repository
-$ mockgen -source=internal/repositories/repositories.go -package=mocks -destination=mocks/repositories.go -mock_names="ExampleContract=MockExampleRepositoryContract"
+example :
+
+```go
+package example
+
+//go:generate go run github.com/golang/mock/mockgen -source service.go -destination mock/service_mock.go -package example_mock
+
+import "github.com/gofrs/uuid"
+
+type SomeService interface {
+	ResolveByID(id uuid.UUID) (SomeEntity, error)
+}
+
+type SomeServiceImpl struct {
+	SomeRepository SomeRepository `inject:"example.someRepository"`
+}
+
+func (s *SomeServiceImpl) ResolveByID(id uuid.UUID) (SomeEntity, error) {
+	return s.SomeRepository.ResolveByID(id)
+}
 ```
 
 ## Go Directories
@@ -130,6 +114,12 @@ System init (systemd, upstart, sysv) and process manager/supervisor (runit, supe
 - [Live Reload](https://github.com/cosmtrek/air)
 - [Mocks](https://github.com/golang/mock)
 - [Event Consumer](https://github.com/nsqio/go-nsq)
+- [Linter - golangci-lint](github.com/golangci/golangci-lint)
+- [Documentation Generator - Swaggo](github.com/swaggo/swag/cmd/swag)
+- [Documentation Server - Swaggo HTTP Server](github.com/swaggo/http-swagger)
+
+## Useful Links
+- [Golang Tools Best Practice](https://github.com/go-modules-by-example/index/tree/master/010_tools)
 
 ## Diagram
 Here's the diagram to explanation about project structre.

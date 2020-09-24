@@ -1,6 +1,6 @@
 package example
 
-//go:generate mockgen -source service.go -destination mock/service_mock.go -package example_mock
+//go:generate go run github.com/golang/mock/mockgen -source service.go -destination mock/service_mock.go -package example_mock
 
 import "github.com/gofrs/uuid"
 

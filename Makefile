@@ -4,22 +4,28 @@ test: clean documents generate
 
 coverage: clean documents generate
 	bash coverage.sh --html
-	
-engine:
-	go build -o ${BINARY} *.go
+
+dev: generate
+	go run github.com/cosmtrek/air
+
+run: generate
+	go run .
+
+build:
+	go build -o ${BINARY} .
 
 clean:
 	@if [ -f ${BINARY} ] ; then rm ${BINARY} ; fi
 	@find . -name *mock* -delete
 	@rm -rf .cover
 
-docker:
+docker_build:
 	docker build -t boilerplate-go -f Dockerfile-local .
 
-run:
-	docker-compose up --build -d
+docker_start:
+	docker-compose up --build
 
-stop:
+docker_stop:
 	docker-compose down
 
 lint-prepare:
@@ -27,10 +33,7 @@ lint-prepare:
 	curl -sfL https://raw.githubusercontent.com/golangci/golangci-lint/master/install.sh | sh -s latest
 
 lint:
-	./bin/golangci-lint run ./...
-
-documents:
-	swag init
+	go run github.com/golangci/golangci-lint/cmd/golangci-lint run ./...
 
 generate:
 	go generate ./...

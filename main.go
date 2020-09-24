@@ -1,5 +1,7 @@
 package main
 
+//go:generate go run github.com/swaggo/swag/cmd/swag init
+
 import (
 	"github.com/evermos/boilerplate-go/configs"
 	"github.com/evermos/boilerplate-go/infras"

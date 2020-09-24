@@ -48,8 +48,8 @@ func (h *Http) Serve() {
 	if h.Config.Env == shared.DevEnvironment {
 		docs.SwaggerInfo.Title = shared.ServiceName
 		docs.SwaggerInfo.Version = shared.ServiceVersion
-		swaggerURL := fmt.Sprintf("%s/docs/doc.json", h.Config.AppURL)
-		h.Router.Get("/docs/*", httpSwagger.Handler(httpSwagger.URL(swaggerURL)))
+		swaggerURL := fmt.Sprintf("%s/swagger/doc.json", h.Config.AppURL)
+		h.Router.Get("/swagger/*", httpSwagger.Handler(httpSwagger.URL(swaggerURL)))
 	}
 
 	netHttp.ListenAndServe(":"+h.Config.Port, h.Router)

@@ -3,9 +3,10 @@ module github.com/evermos/boilerplate-go
 go 1.14
 
 require (
-	github.com/DATA-DOG/go-sqlmock v1.4.1
+	github.com/DATA-DOG/go-sqlmock v1.4.1 // indirect
 	github.com/alecthomas/template v0.0.0-20190718012654-fb15b899a751
 	github.com/cenkalti/backoff v2.2.1+incompatible
+	github.com/cosmtrek/air v1.21.2
 	github.com/facebookgo/ensure v0.0.0-20200202191622-63f1cf65ac4c // indirect
 	github.com/facebookgo/inject v0.0.0-20180706035515-f23751cae28b
 	github.com/facebookgo/stack v0.0.0-20160209184415-751773369052 // indirect
@@ -17,13 +18,14 @@ require (
 	github.com/go-sql-driver/mysql v1.5.0
 	github.com/gofrs/uuid v3.3.0+incompatible
 	github.com/golang/mock v1.3.1
+	github.com/golangci/golangci-lint v1.31.0 // indirect
 	github.com/guregu/null v4.0.0+incompatible
-	github.com/jmoiron/sqlx v1.2.0
+	github.com/jmoiron/sqlx v1.2.1-0.20190826204134-d7d95172beb5
 	github.com/nsqio/go-nsq v1.0.8
 	github.com/onsi/ginkgo v1.14.0 // indirect
 	github.com/rs/zerolog v1.20.0
 	github.com/spf13/viper v1.7.1
-	github.com/stretchr/testify v1.3.0
+	github.com/stretchr/testify v1.6.1
 	github.com/swaggo/http-swagger v0.0.0-20200308142732-58ac5e232fba
 	github.com/swaggo/swag v1.6.3
 )
