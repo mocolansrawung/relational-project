@@ -1,4 +1,7 @@
-# Pull Request Template
+# Summary
+
+<!-- Add your PR build badge here -->
+[![Build Status](https://jenkinsx.evermosa2z.com/buildStatus/icon?job=be-boilerplate-go%2FPR-<your-PR-number>)](https://jenkinsx.evermosa2z.com/job/be-boilerplate-go/job/PR-<your-PR-number>/)
 
 ## Description
 

@@ -1,5 +1,6 @@
+ARG GO_VERSION=1.14
 # Builder
-FROM golang:1.14.2-alpine3.11 as builder
+FROM golang:${GO_VERSION}-alpine as builder
 
 RUN apk update && apk upgrade && \
     apk --update add git make build-base

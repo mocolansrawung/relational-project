@@ -1,4 +1,5 @@
 # boilerplate-go
+[![Build Status](https://jenkinsx.evermosa2z.com/buildStatus/icon?job=be-boilerplate-go%2Fmaster)](https://jenkinsx.evermosa2z.com/job/be-boilerplate-go/job/master/) [![Quality Gate Status](https://sonar.evermosa2z.com/api/project_badges/measure?project=be-boilerplate-go&metric=alert_status)](https://sonar.evermosa2z.com/dashboard?id=be-boilerplate-go)
 ## Changelog
 - **v1**: first commit structure
 
