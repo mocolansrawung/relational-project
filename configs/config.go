@@ -12,7 +12,6 @@ import (
 type Config struct {
 	App struct {
 		URL string `mapstructure:"URL"`
-		Env string `mapstructure:"ENV"`
 	}
 
 	Cache struct {
@@ -45,9 +44,10 @@ type Config struct {
 	}
 
 	Server struct {
-		LogLevel       string `mapstructure:"LOG_LEVEL"`
-		Port           string `mapstructure:"PORT"`
-		ShutdownPeriod int64  `mapstructure:"SHUTDOWN_PERIOD_SECONDS"`
+		Env                   string `mapstructure:"ENV"`
+		LogLevel              string `mapstructure:"LOG_LEVEL"`
+		Port                  string `mapstructure:"PORT"`
+		ShutdownPeriodSeconds int64  `mapstructure:"SHUTDOWN_PERIOD_SECONDS"`
 	}
 }
 

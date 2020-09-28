@@ -1,17 +1,14 @@
 package main
 
 //go:generate go run github.com/swaggo/swag/cmd/swag init
+//go:generate go run github.com/google/wire/cmd/wire
 
 import (
 	"github.com/evermos/boilerplate-go/configs"
-	"github.com/evermos/boilerplate-go/di"
 	"github.com/evermos/boilerplate-go/infras"
-	"github.com/evermos/boilerplate-go/internal/domain/example"
-	"github.com/evermos/boilerplate-go/internal/handlers"
 	"github.com/evermos/boilerplate-go/router"
 	"github.com/evermos/boilerplate-go/shared/logger"
 	"github.com/evermos/boilerplate-go/transport/http"
-	"github.com/rs/zerolog/log"
 )
 
 var (
@@ -30,34 +27,15 @@ func main() {
 	// Set desired log level
 	logger.SetLogLevel(config)
 
-	// Initialize container
-	container := di.NewContainer()
-	db = &infras.MySQLConn{
-		Write: infras.CreateMySQLWriteConn(*config),
-		Read:  infras.CreateMySQLReadConn(*config)}
-	container.Register("config", config)
-	container.Register("db", db)
-
-	// Domain - Example
-	container.Register("example.someRepository", new(example.SomeRepositoryMySQL))
-	container.Register("example.someService", new(example.SomeServiceImpl))
-
-	// Handlers
-	container.Register("handler.example", new(handlers.ExampleHandler))
-
-	httpRouter = &router.Router{}
-	container.Register("router", httpRouter)
-	err := container.Start()
-	if err != nil {
-		log.Fatal().Err(err).Msg("")
-	}
+	// Wire everything up
+	httpRouter := InitializeService()
 
 	// Setup HTTP server
-	http := http.Http{
+	http := http.HTTP{
 		DB:     db,
 		Config: config,
 		Router: httpRouter.NewRouter()}
-	http.GracefulShutdown(*container)
+	http.SetupGracefulShutdown()
 
 	// Run server
 	http.Serve()

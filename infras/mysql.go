@@ -19,8 +19,16 @@ const (
 
 // MySQLConn wraps a pair of read/write MySQL connections.
 type MySQLConn struct {
-	Write *sqlx.DB
 	Read  *sqlx.DB
+	Write *sqlx.DB
+}
+
+// ProvideMySQLConn is the provider for MySQLConn.
+func ProvideMySQLConn(config *configs.Config) *MySQLConn {
+	return &MySQLConn{
+		Read:  CreateMySQLReadConn(*config),
+		Write: CreateMySQLWriteConn(*config),
+	}
 }
 
 // CreateMySQLWriteConn creates a database connection for write access.
@@ -64,14 +72,14 @@ func CreateDBConnection(name, username, password, host, dbName, timeZone string)
 			Str("name", name).
 			Str("host", host).
 			Str("dbName", dbName).
-			Msg("error connecting to database")
+			Msg("Failed connecting to database")
 	} else {
 		log.
 			Info().
 			Str("name", name).
 			Str("host", host).
 			Str("dbName", dbName).
-			Msg("connected to database")
+			Msg("Connected to database")
 	}
 	db.SetMaxIdleConns(maxIdleConnection)
 	db.SetMaxOpenConns(maxOpenConnection)

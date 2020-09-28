@@ -17,7 +17,7 @@ build:
 clean:
 	@if [ -f ${BINARY} ] ; then rm ${BINARY} ; fi
 	@find . -name *mock* -delete
-	@rm -rf .cover
+	@rm -rf .cover wire_gen.go docs
 
 docker_build:
 	docker build -t boilerplate-go -f Dockerfile-local .

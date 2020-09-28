@@ -17,6 +17,9 @@ tmp/
 # Ignore other binaries
 bin/
 
+# Ignore generated wiring file
+wire_gen.go
+
 # Ignore mock and test files
 # *mock.go
 **/mock*

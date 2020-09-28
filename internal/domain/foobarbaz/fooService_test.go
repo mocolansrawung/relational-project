@@ -1,11 +1,11 @@
-package example_test
+package foobarbaz_test
 
 import (
 	"testing"
 	"time"
 
-	"github.com/evermos/boilerplate-go/internal/domain/example"
-	example_mock "github.com/evermos/boilerplate-go/internal/domain/example/mock"
+	"github.com/evermos/boilerplate-go/internal/domain/foobarbaz"
+	foobarbaz_mock "github.com/evermos/boilerplate-go/internal/domain/foobarbaz/mock"
 	"github.com/evermos/boilerplate-go/shared/nuuid"
 	"github.com/gofrs/uuid"
 	"github.com/golang/mock/gomock"
@@ -18,25 +18,25 @@ func getRandomUUID() uuid.UUID {
 	return id
 }
 
-func TestExampleService(t *testing.T) {
+func TestFooService(t *testing.T) {
 
 	t.Run("resolveByID", func(t *testing.T) {
 		tests := []struct {
 			name      string
 			entityID  uuid.UUID
-			setupMock func(*example_mock.MockSomeRepository, uuid.UUID, example.SomeEntity, error)
-			returns   *example.SomeEntity
+			setupMock func(*foobarbaz_mock.MockFooRepository, uuid.UUID, foobarbaz.Foo, error)
+			returns   *foobarbaz.Foo
 			err       error
 		}{
 			{
 				name:     "default",
 				entityID: getRandomUUID(),
-				setupMock: func(mockRepo *example_mock.MockSomeRepository, id uuid.UUID, ent example.SomeEntity, err error) {
+				setupMock: func(mockRepo *foobarbaz_mock.MockFooRepository, id uuid.UUID, ent foobarbaz.Foo, err error) {
 					mockRepo.EXPECT().ResolveByID(id).Return(ent, err)
 				},
-				returns: &example.SomeEntity{
+				returns: &foobarbaz.Foo{
 					Name:      "John Doe",
-					Status:    example.SomeEntityStatusActive,
+					Status:    foobarbaz.FooStatusActive,
 					Created:   time.Now(),
 					CreatedBy: getRandomUUID(),
 					Updated:   null.TimeFrom(time.Now()),
@@ -51,9 +51,9 @@ func TestExampleService(t *testing.T) {
 
 		for _, test := range tests {
 			t.Run(test.name, func(t *testing.T) {
-				mockRepo := example_mock.NewMockSomeRepository(ctrl)
-				s := &example.SomeServiceImpl{
-					SomeRepository: mockRepo,
+				mockRepo := foobarbaz_mock.NewMockFooRepository(ctrl)
+				s := &foobarbaz.FooServiceImpl{
+					FooRepository: mockRepo,
 				}
 				test.setupMock(mockRepo, test.entityID, *test.returns, test.err)
 				got, err := s.ResolveByID(test.entityID)

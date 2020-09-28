@@ -6,8 +6,18 @@ import (
 	"github.com/go-chi/chi/middleware"
 )
 
+type DomainHandlers struct {
+	FooBarBazHandler handlers.FooBarBazHandler
+}
+
 type Router struct {
-	ExampleHandler *handlers.ExampleHandler `inject:"handler.example"`
+	DomainHandlers DomainHandlers
+}
+
+func ProvideRouter(domainHandlers DomainHandlers) Router {
+	return Router{
+		DomainHandlers: domainHandlers,
+	}
 }
 
 func (r *Router) NewRouter() *chi.Mux {
@@ -16,7 +26,7 @@ func (r *Router) NewRouter() *chi.Mux {
 	mux.Use(middleware.Recoverer)
 
 	mux.Route("/v1", func(rc chi.Router) {
-		r.ExampleHandler.Router(rc)
+		r.DomainHandlers.FooBarBazHandler.Router(rc)
 	})
 
 	return mux
