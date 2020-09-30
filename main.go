@@ -6,9 +6,9 @@ package main
 import (
 	"github.com/evermos/boilerplate-go/configs"
 	"github.com/evermos/boilerplate-go/infras"
-	"github.com/evermos/boilerplate-go/router"
 	"github.com/evermos/boilerplate-go/shared/logger"
 	"github.com/evermos/boilerplate-go/transport/http"
+	"github.com/evermos/boilerplate-go/transport/http/router"
 )
 
 var (
@@ -34,9 +34,8 @@ func main() {
 	http := http.HTTP{
 		DB:     db,
 		Config: config,
-		Router: httpRouter.NewRouter()}
-	http.SetupGracefulShutdown()
+		Router: httpRouter}
 
 	// Run server
-	http.Serve()
+	http.SetupAndServe()
 }

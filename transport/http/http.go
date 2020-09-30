@@ -14,51 +14,116 @@ import (
 	"github.com/evermos/boilerplate-go/infras"
 	"github.com/evermos/boilerplate-go/shared"
 	"github.com/evermos/boilerplate-go/transport/http/response"
+	"github.com/evermos/boilerplate-go/transport/http/router"
 	"github.com/go-chi/chi"
+	"github.com/go-chi/chi/middleware"
 	"github.com/rs/zerolog/log"
 	httpSwagger "github.com/swaggo/http-swagger"
 )
 
+// ServerState is an indicator if this server's state.
+type ServerState int
+
+const (
+	// ServerStateReady indicates that the server is ready to serve.
+	ServerStateReady ServerState = iota + 1
+	// ServerStateInGracePeriod indicates that the server is in its grace
+	// period and will shut down after it is done cleaning up.
+	ServerStateInGracePeriod
+	// ServerStateInCleanupPeriod indicates that the server no longer
+	// responds to any requests, is cleaning up its internal state, and
+	// will shut down shortly.
+	ServerStateInCleanupPeriod
+)
+
+// HTTP is the HTTP server.
 type HTTP struct {
 	Config *configs.Config
 	DB     *infras.MySQLConn
-	Router *chi.Mux
+	Router router.Router
+	State  ServerState
+	mux    *chi.Mux
 }
 
-// Shutdown shuts down the service.
-func (h *HTTP) Shutdown(done chan os.Signal) {
-	<-done
-	defer os.Exit(0)
-	log.Info().Msg("Received shutdown signal.")
-	log.Info().Int64("seconds", h.Config.Server.ShutdownPeriodSeconds).Msg("Entering pre-shutdown period.")
-	time.Sleep(time.Duration(h.Config.Server.ShutdownPeriodSeconds) * time.Second)
-	log.Info().Msg("Cleaning up all resources.")
-	// TODO: next PR
-	log.Info().Msg("Cleaning up completed.")
+// SetupAndServe sets up the server and gets it up and running.
+func (h *HTTP) SetupAndServe() {
+	h.mux = chi.NewRouter()
+	h.setupMiddleware()
+	h.setupSwaggerDocs()
+	h.setupRoutes()
+	h.setupGracefulShutdown()
+	h.State = ServerStateReady
+
+	log.Info().Str("port", h.Config.Server.Port).Msg("Starting up HTTP server.")
+
+	err := netHttp.ListenAndServe(":"+h.Config.Server.Port, h.mux)
+	if err != nil {
+		log.Error().Err(err).Msg("")
+	}
 }
 
-// SetupGracefulShutdown sets up graceful shutdown procedure for this service.
-func (h *HTTP) SetupGracefulShutdown() {
-	done := make(chan os.Signal, 1)
-	signal.Notify(done, os.Interrupt, syscall.SIGTERM)
-	go h.Shutdown(done)
-}
-
-func (h *HTTP) Serve() {
-	log.Info().Str("port", h.Config.Server.Port).Msg("HTTP server is running.")
-	h.Router.Get("/health", h.HealthCheck)
+func (h *HTTP) setupSwaggerDocs() {
 	if h.Config.Server.Env == shared.DevEnvironment {
 		docs.SwaggerInfo.Title = shared.ServiceName
 		docs.SwaggerInfo.Version = shared.ServiceVersion
 		swaggerURL := fmt.Sprintf("%s/swagger/doc.json", h.Config.App.URL)
-		h.Router.Get("/swagger/*", httpSwagger.Handler(httpSwagger.URL(swaggerURL)))
-		log.Info().Str("url", swaggerURL).Msg("Swagger documentation is available.")
+		h.mux.Get("/swagger/*", httpSwagger.Handler(httpSwagger.URL(swaggerURL)))
+		log.Info().Str("url", swaggerURL).Msg("Swagger documentation enabled.")
 	}
+}
 
-	err := netHttp.ListenAndServe(":"+h.Config.Server.Port, h.Router)
-	if err != nil {
-		log.Error().Err(err).Msg("")
-	}
+func (h *HTTP) setupRoutes() {
+	h.mux.Get("/health", h.HealthCheck)
+	h.Router.SetupRoutes(h.mux)
+}
+
+func (h *HTTP) setupGracefulShutdown() {
+	done := make(chan os.Signal, 1)
+	signal.Notify(done, os.Interrupt, syscall.SIGTERM)
+	go h.respondToSigterm(done)
+}
+
+func (h *HTTP) respondToSigterm(done chan os.Signal) {
+	<-done
+	defer os.Exit(0)
+
+	shutdownConfig := h.Config.Server.Shutdown
+
+	log.Info().Msg("Received SIGTERM.")
+	log.Info().Int64("seconds", shutdownConfig.GracePeriodSeconds).Msg("Entering grace period.")
+	h.State = ServerStateInGracePeriod
+	time.Sleep(time.Duration(shutdownConfig.GracePeriodSeconds) * time.Second)
+
+	log.Info().Int64("seconds", shutdownConfig.CleanupPeriodSeconds).Msg("Entering cleanup period.")
+	h.State = ServerStateInCleanupPeriod
+	time.Sleep(time.Duration(shutdownConfig.CleanupPeriodSeconds) * time.Second)
+
+	log.Info().Msg("Cleaning up completed. Shutting down now.")
+}
+
+func (h *HTTP) setupMiddleware() {
+	h.mux.Use(middleware.Logger)
+	h.mux.Use(middleware.Recoverer)
+	h.mux.Use(h.serverStateMiddleware)
+}
+
+func (h *HTTP) serverStateMiddleware(next http.Handler) http.Handler {
+	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		switch h.State {
+		case ServerStateReady:
+			// Server is ready to serve, don't do anything.
+			next.ServeHTTP(w, r)
+		case ServerStateInGracePeriod:
+			// Server is in grace period. Issue a warning message and continue
+			// serving as usual.
+			log.Warn().Msg("SERVER IS IN GRACE PERIOD")
+			next.ServeHTTP(w, r)
+		case ServerStateInCleanupPeriod:
+			// Server is in cleanup period. Stop the request from actually
+			// invoking any domain services and respond appropriately.
+			response.WithPreparingShutdown(w)
+		}
+	})
 }
 
 // HealthCheck performs a health check on the server. Usually required by

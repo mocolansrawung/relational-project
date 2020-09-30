@@ -7,7 +7,7 @@ import (
 	"github.com/evermos/boilerplate-go/infras"
 	"github.com/evermos/boilerplate-go/internal/domain/foobarbaz"
 	"github.com/evermos/boilerplate-go/internal/handlers"
-	"github.com/evermos/boilerplate-go/router"
+	"github.com/evermos/boilerplate-go/transport/http/router"
 	"github.com/google/wire"
 )
 

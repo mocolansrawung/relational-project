@@ -74,7 +74,7 @@ func CreateDBConnection(name, username, password, host, port, dbName, timeZone s
 			Err(err).
 			Str("name", name).
 			Str("host", host).
-			Str("host", port).
+			Str("port", port).
 			Str("dbName", dbName).
 			Msg("Failed connecting to database")
 	} else {
@@ -82,7 +82,7 @@ func CreateDBConnection(name, username, password, host, port, dbName, timeZone s
 			Info().
 			Str("name", name).
 			Str("host", host).
-			Str("host", port).
+			Str("port", port).
 			Str("dbName", dbName).
 			Msg("Connected to database")
 	}
