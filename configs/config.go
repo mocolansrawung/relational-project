@@ -28,6 +28,7 @@ type Config struct {
 		MySQL struct {
 			Read struct {
 				Host     string `mapstructure:"HOST"`
+				Port     string `mapstructure:"PORT"`
 				Username string `mapstructure:"USER"`
 				Password string `mapstructure:"PASSWORD"`
 				Name     string `mapstructure:"NAME"`
@@ -35,6 +36,7 @@ type Config struct {
 			}
 			Write struct {
 				Host     string `mapstructure:"HOST"`
+				Port     string `mapstructure:"PORT"`
 				Username string `mapstructure:"USER"`
 				Password string `mapstructure:"PASSWORD"`
 				Name     string `mapstructure:"NAME"`
