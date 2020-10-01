@@ -11,6 +11,14 @@ import (
 // variables.
 type Config struct {
 	App struct {
+		CORS struct {
+			AllowCredentials bool     `mapstructure:"ALLOW_CREDENTIALS"`
+			AllowedHeaders   []string `mapstructure:"ALLOWED_HEADERS"`
+			AllowedMethods   []string `mapstructure:"ALLOWED_METHODS"`
+			AllowedOrigins   []string `mapstructure:"ALLOWED_ORIGINS"`
+			Enable           bool     `mapstructure:"ENABLE"`
+			MaxAgeSeconds    int      `mapstructure:"MAX_AGE_SECONDS"`
+		}
 		URL string `mapstructure:"URL"`
 	}
 

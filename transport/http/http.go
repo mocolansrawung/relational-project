@@ -6,6 +6,7 @@ import (
 	netHttp "net/http"
 	"os"
 	"os/signal"
+	"strings"
 	"syscall"
 	"time"
 
@@ -17,6 +18,7 @@ import (
 	"github.com/evermos/boilerplate-go/transport/http/router"
 	"github.com/go-chi/chi"
 	"github.com/go-chi/chi/middleware"
+	"github.com/go-chi/cors"
 	"github.com/rs/zerolog/log"
 	httpSwagger "github.com/swaggo/http-swagger"
 )
@@ -53,6 +55,8 @@ func (h *HTTP) SetupAndServe() {
 	h.setupRoutes()
 	h.setupGracefulShutdown()
 	h.State = ServerStateReady
+
+	h.logServerInfo()
 
 	log.Info().Str("port", h.Config.Server.Port).Msg("Starting up HTTP server.")
 
@@ -105,6 +109,25 @@ func (h *HTTP) setupMiddleware() {
 	h.mux.Use(middleware.Logger)
 	h.mux.Use(middleware.Recoverer)
 	h.mux.Use(h.serverStateMiddleware)
+	h.setupCORS()
+}
+
+func (h *HTTP) logServerInfo() {
+	h.logCORSConfigInfo()
+}
+
+func (h *HTTP) logCORSConfigInfo() {
+	corsConfig := h.Config.App.CORS
+	if corsConfig.Enable {
+		log.Info().Msg("CORS Headers and Handlers are enabled.")
+		log.Info().Str("CORS Header", fmt.Sprintf("Access-Control-Allow-Credentials: %t", corsConfig.AllowCredentials)).Msg("")
+		log.Info().Str("CORS Header", fmt.Sprintf("Access-Control-Allow-Headers: %s", strings.Join(corsConfig.AllowedHeaders, ", "))).Msg("")
+		log.Info().Str("CORS Header", fmt.Sprintf("Access-Control-Allow-Methods: %s", strings.Join(corsConfig.AllowedMethods, ", "))).Msg("")
+		log.Info().Str("CORS Header", fmt.Sprintf("Access-Control-Allow-Origin: %s", strings.Join(corsConfig.AllowedOrigins, ", "))).Msg("")
+		log.Info().Str("CORS Header", fmt.Sprintf("Access-Control-Max-Age: %d", corsConfig.MaxAgeSeconds)).Msg("")
+	} else {
+		log.Info().Msg("CORS Headers are disabled.")
+	}
 }
 
 func (h *HTTP) serverStateMiddleware(next http.Handler) http.Handler {
@@ -124,6 +147,19 @@ func (h *HTTP) serverStateMiddleware(next http.Handler) http.Handler {
 			response.WithPreparingShutdown(w)
 		}
 	})
+}
+
+func (h *HTTP) setupCORS() {
+	corsConfig := h.Config.App.CORS
+	if corsConfig.Enable {
+		h.mux.Use(cors.Handler(cors.Options{
+			AllowCredentials: corsConfig.AllowCredentials,
+			AllowedHeaders:   corsConfig.AllowedHeaders,
+			AllowedMethods:   corsConfig.AllowedMethods,
+			AllowedOrigins:   corsConfig.AllowedOrigins,
+			MaxAge:           corsConfig.MaxAgeSeconds,
+		}))
+	}
 }
 
 // HealthCheck performs a health check on the server. Usually required by

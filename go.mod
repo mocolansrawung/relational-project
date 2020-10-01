@@ -8,6 +8,7 @@ require (
 	github.com/cpuguy83/go-md2man/v2 v2.0.0 // indirect
 	github.com/fatih/color v1.9.0 // indirect
 	github.com/go-chi/chi v4.1.2+incompatible
+	github.com/go-chi/cors v1.1.1
 	github.com/go-redis/redis v6.15.9+incompatible
 	github.com/go-sql-driver/mysql v1.5.0
 	github.com/gofrs/uuid v3.3.0+incompatible
