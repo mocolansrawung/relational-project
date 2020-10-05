@@ -8,13 +8,11 @@ import (
 	"github.com/evermos/boilerplate-go/infras"
 	"github.com/evermos/boilerplate-go/shared/logger"
 	"github.com/evermos/boilerplate-go/transport/http"
-	"github.com/evermos/boilerplate-go/transport/http/router"
 )
 
 var (
-	db         *infras.MySQLConn
-	config     *configs.Config
-	httpRouter *router.Router
+	db     *infras.MySQLConn
+	config *configs.Config
 )
 
 func main() {

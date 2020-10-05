@@ -64,7 +64,10 @@ type Config struct {
 	}
 }
 
-var conf Config
+var (
+	conf Config
+	once sync.Once
+)
 
 // Get are responsible to load env and get data an return the struct
 func Get() *Config {
@@ -75,8 +78,8 @@ func Get() *Config {
 		log.Fatal().Err(err).Msg("Failed reading config file")
 	}
 
-	once := sync.Once{}
 	once.Do(func() {
+		log.Info().Msg("Service configuration initialized.")
 		err = viper.Unmarshal(&conf)
 		if err != nil {
 			log.Fatal().Err(err).Msg("")
