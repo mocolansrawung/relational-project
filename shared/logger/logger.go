@@ -5,6 +5,7 @@ import (
 	"time"
 
 	"github.com/evermos/boilerplate-go/configs"
+	"github.com/pkg/errors"
 	"github.com/rs/zerolog"
 	"github.com/rs/zerolog/log"
 )
@@ -19,6 +20,11 @@ func InitLogger() {
 
 	log.Logger = log.Output(output)
 	log.Trace().Msg("Zerolog initialized.")
+}
+
+// ErrorWithStack logs and error and its stack trace with custom formatting.
+func ErrorWithStack(err error) {
+	log.Error().Msgf("%+v", errors.WithStack(err))
 }
 
 // SetLogLevel sets the desired log level specified in env var.

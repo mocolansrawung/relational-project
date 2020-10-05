@@ -5,7 +5,7 @@ import (
 	"net/http"
 
 	"github.com/evermos/boilerplate-go/shared/failure"
-	"github.com/rs/zerolog/log"
+	"github.com/evermos/boilerplate-go/shared/logger"
 )
 
 // Base is the base object of all responses
@@ -53,6 +53,6 @@ func respond(w http.ResponseWriter, code int, payload interface{}) {
 	w.WriteHeader(code)
 	_, err := w.Write(response)
 	if err != nil {
-		log.Error().Err(err).Msg("")
+		logger.ErrorWithStack(err)
 	}
 }
