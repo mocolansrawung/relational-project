@@ -1,6 +1,6 @@
 package foobarbaz
 
-//go:generate go run github.com/golang/mock/mockgen -source fooRepository.go -destination mock/fooRepository_mock.go -package foobarbaz_mock
+//go:generate go run github.com/golang/mock/mockgen -source foo_repository.go -destination mock/foo_repository_mock.go -package foobarbaz_mock
 
 import (
 	"errors"

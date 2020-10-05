@@ -1,6 +1,6 @@
 package foobarbaz
 
-//go:generate go run github.com/golang/mock/mockgen -source fooService.go -destination mock/fooService_mock.go -package foobarbaz_mock
+//go:generate go run github.com/golang/mock/mockgen -source foo_service.go -destination mock/foo_service_mock.go -package foobarbaz_mock
 
 import (
 	"github.com/gofrs/uuid"
