@@ -5,6 +5,8 @@ import (
 	"fmt"
 	"net/url"
 
+	"github.com/evermos/boilerplate-go/shared/failure"
+
 	"github.com/evermos/boilerplate-go/configs"
 	// use MySQL driver
 	_ "github.com/go-sql-driver/mysql"
@@ -16,6 +18,9 @@ const (
 	maxIdleConnection = 10
 	maxOpenConnection = 10
 )
+
+// Block contains a transaction block
+type Block func(db *sqlx.Tx, c chan error)
 
 // MySQLConn wraps a pair of read/write MySQL connections.
 type MySQLConn struct {
@@ -99,4 +104,23 @@ func OpenMock(db *sql.DB) *MySQLConn {
 		Write: conn,
 		Read:  conn,
 	}
+}
+
+// WithTransaction performs queries with transaction
+func (m *MySQLConn) WithTransaction(block Block) (err error) {
+	e := make(chan error)
+	tx, err := m.Write.Beginx()
+	if err != nil {
+		return
+	}
+	go block(tx, e)
+	err = <-e
+	if err != nil {
+		if errTx := tx.Rollback(); errTx != nil {
+			err = failure.InternalError(errTx)
+		}
+		return
+	}
+	err = tx.Commit()
+	return
 }
