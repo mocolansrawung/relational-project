@@ -13,7 +13,6 @@ import (
 	"github.com/evermos/boilerplate-go/configs"
 	"github.com/evermos/boilerplate-go/docs"
 	"github.com/evermos/boilerplate-go/infras"
-	"github.com/evermos/boilerplate-go/shared"
 	"github.com/evermos/boilerplate-go/shared/logger"
 	"github.com/evermos/boilerplate-go/transport/http/response"
 	"github.com/evermos/boilerplate-go/transport/http/router"
@@ -68,9 +67,9 @@ func (h *HTTP) SetupAndServe() {
 }
 
 func (h *HTTP) setupSwaggerDocs() {
-	if h.Config.Server.Env == shared.DevEnvironment {
-		docs.SwaggerInfo.Title = shared.ServiceName
-		docs.SwaggerInfo.Version = shared.ServiceVersion
+	if h.Config.Server.Env == "development" {
+		docs.SwaggerInfo.Title = h.Config.App.Name
+		docs.SwaggerInfo.Version = h.Config.App.Revision
 		swaggerURL := fmt.Sprintf("%s/swagger/doc.json", h.Config.App.URL)
 		h.mux.Get("/swagger/*", httpSwagger.Handler(httpSwagger.URL(swaggerURL)))
 		log.Info().Str("url", swaggerURL).Msg("Swagger documentation enabled.")
