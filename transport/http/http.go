@@ -47,6 +47,15 @@ type HTTP struct {
 	mux    *chi.Mux
 }
 
+// ProvideHTTP is the provider for HTTP.
+func ProvideHTTP(db *infras.MySQLConn, config *configs.Config, router router.Router) *HTTP {
+	return &HTTP{
+		DB:     db,
+		Config: config,
+		Router: router,
+	}
+}
+
 // SetupAndServe sets up the server and gets it up and running.
 func (h *HTTP) SetupAndServe() {
 	h.mux = chi.NewRouter()

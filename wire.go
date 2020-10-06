@@ -7,6 +7,7 @@ import (
 	"github.com/evermos/boilerplate-go/infras"
 	"github.com/evermos/boilerplate-go/internal/domain/foobarbaz"
 	"github.com/evermos/boilerplate-go/internal/handlers"
+	"github.com/evermos/boilerplate-go/transport/http"
 	"github.com/evermos/boilerplate-go/transport/http/router"
 	"github.com/google/wire"
 )
@@ -44,7 +45,7 @@ var routing = wire.NewSet(
 )
 
 // Wiring for everything.
-func InitializeService() router.Router {
+func InitializeService() *http.HTTP {
 	wire.Build(
 		// configurations
 		configurations,
@@ -53,6 +54,8 @@ func InitializeService() router.Router {
 		// domains
 		domains,
 		// routing
-		routing)
-	return router.Router{}
+		routing,
+		// selected transport layer
+		http.ProvideHTTP)
+	return &http.HTTP{}
 }

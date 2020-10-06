@@ -5,15 +5,10 @@ package main
 
 import (
 	"github.com/evermos/boilerplate-go/configs"
-	"github.com/evermos/boilerplate-go/infras"
 	"github.com/evermos/boilerplate-go/shared/logger"
-	"github.com/evermos/boilerplate-go/transport/http"
 )
 
-var (
-	db     *infras.MySQLConn
-	config *configs.Config
-)
+var config *configs.Config
 
 func main() {
 	// Initialize logger
@@ -26,13 +21,7 @@ func main() {
 	logger.SetLogLevel(config)
 
 	// Wire everything up
-	httpRouter := InitializeService()
-
-	// Setup HTTP server
-	http := http.HTTP{
-		DB:     db,
-		Config: config,
-		Router: httpRouter}
+	http := InitializeService()
 
 	// Run server
 	http.SetupAndServe()
