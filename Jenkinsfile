@@ -13,7 +13,6 @@ podTemplate(containers: [
   ) {
     node(POD_LABEL) {
         def appName = "boilerplate-go"
-        def boilerplateRepo = "https://github.com/evermos/boilerplate-go.git"
         def appFullName
         def revision
         def message
@@ -74,62 +73,52 @@ podTemplate(containers: [
             }
         }
 
-        // remove this block when copy this repo
-        if (repoURL == boilerplateRepo) {
-            def compatibleGoVersion = [ '1.14', '1.15' ]
-            def buildJob = [:]
-            for (ver in compatibleGoVersion) {
-                def goVer = ver.trim()
-                buildJob["Run build with go version ${goVer}"] = {
-                    stage("Test build compatibility for Go version ${goVer}"){
-                        container('docker') {
-                            script {
-                                sh "docker build --build-arg GO_VERSION=${goVer} --network=host -t be-boilerplate-go:test-${goVer} ."
+        // Check version compatibility on PR branches only.
+        if(env.BRANCH_NAME =~ 'PR-.*') {
+            stage('Check Go Version Compatibility') {
+                def compatibleGoVersion = [ '1.14', '1.15' ]
+                def buildJob = [:]
+                for (ver in compatibleGoVersion) {
+                    def goVer = ver.trim()
+                    buildJob["Run build with go version ${goVer}"] = {
+                        stage("Test build compatibility for Go version ${goVer}"){
+                            container('docker') {
+                                script {
+                                    sh "docker build --build-arg GO_VERSION=${goVer} --network=host -t be-boilerplate-go:test-${goVer} ."
+                                }
                             }
                         }
                     }
                 }
+                parallel buildJob
             }
-            parallel buildJob
-        } else {
+        }
+
+        // Build and push the image and notify via Discord only on PR merge to master.
+        if (env.BRANCH_NAME == 'master') {
             stage('Build Docker Image') {
                 container('docker') {
                     docker.withRegistry('https://107126629234.dkr.ecr.ap-southeast-1.amazonaws.com', 'ecr:ap-southeast-1:49feb1c9-1719-4520-aa17-67695b347b0e') {
                         script {
-                            if (env.BRANCH_NAME == 'dev'){
-                                sh 'docker build --network=host -f "Dockerfile" -t 107126629234.dkr.ecr.ap-southeast-1.amazonaws.com/boilerplate-go:1.1.$BUILD_NUMBER-dev .'
-                            }
-                            else if (env.BRANCH_NAME == 'master'){
-                                sh 'docker build --network=host -f "Dockerfile" -t 107126629234.dkr.ecr.ap-southeast-1.amazonaws.com/boilerplate-go:1.1.$BUILD_NUMBER-prod .'
-                            }
-                            else{
-                                sh 'docker build --network=host -f "Dockerfile" -t 107126629234.dkr.ecr.ap-southeast-1.amazonaws.com/boilerplate-go:1.1.$BUILD_NUMBER-$BRANCH_NAME .'
-                            }
+                            sh """docker build --network=host -f "Dockerfile" -t 107126629234.dkr.ecr.ap-southeast-1.amazonaws.com/${appFullName} ."""
                         }
                     }
                 }
             }
 
             stage('Push Docker Image') {
+
                 container('docker') {
                     docker.withRegistry('https://107126629234.dkr.ecr.ap-southeast-1.amazonaws.com', 'ecr:ap-southeast-1:49feb1c9-1719-4520-aa17-67695b347b0e	') {
                         script {
-                            if (env.BRANCH_NAME == 'dev'){
-                                sh 'docker push 107126629234.dkr.ecr.ap-southeast-1.amazonaws.com/boilerplate-go:1.1.$BUILD_NUMBER-dev'
-                            }
-                            else if (env.BRANCH_NAME == 'master'){
-                                sh 'docker push 107126629234.dkr.ecr.ap-southeast-1.amazonaws.com/boilerplate-go:1.1.$BUILD_NUMBER-prod'
-                            }
-                            else{
-                                sh 'docker push 107126629234.dkr.ecr.ap-southeast-1.amazonaws.com/boilerplate-go:1.1.$BUILD_NUMBER-$BRANCH_NAME'
-                            }
+                            sh """docker push 107126629234.dkr.ecr.ap-southeast-1.amazonaws.com/${appFullName}"""
                         }
                     }
                 }
             }
 
             stage('Notification') {
-                discordSend description: "Jenkins Pipeline Build Success!", footer: "boilerplate-go:1.1.$BUILD_NUMBER-$BRANCH_NAME", result: currentBuild.currentResult, title: "$JOB_NAME", webhookURL: "$DISCORD_WEBHOOK"
+                discordSend description: "${message}", footer: "${appFullName}", result: currentBuild.currentResult, title: "$JOB_NAME", webhookURL: "$DISCORD_WEBHOOK"
             }
         }
     }
