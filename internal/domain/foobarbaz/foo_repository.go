@@ -20,6 +20,7 @@ var (
 		insertFoo                    string
 		insertFooItemBulk            string
 		insertFooItemBulkPlaceholder string
+		updateFoo                    string
 	}{
 		selectFoo: `
 			SELECT
@@ -34,7 +35,9 @@ var (
 				foo.created,
 				foo.created_by,
 				foo.updated,
-				foo.updated_by
+				foo.updated_by,
+				foo.deleted,
+				foo.deleted_by
 			FROM foo `,
 
 		selectFooItem: `
@@ -63,7 +66,9 @@ var (
 				created,
 				created_by,
 				updated,
-				updated_by
+				updated_by,
+				deleted,
+				deleted_by
 			) VALUES (
 				:entity_id,
 				:name,
@@ -76,7 +81,9 @@ var (
 				:created,
 				:created_by,
 				:updated,
-				:updated_by)`,
+				:updated_by,
+				:deleted,
+				:deleted_by)`,
 
 		insertFooItemBulk: `
 			INSERT INTO foo_item (
@@ -101,6 +108,24 @@ var (
 			:total_price,
 			:discount,
 			:grand_total)`,
+
+		updateFoo: `
+			UPDATE foo
+			SET
+				name = :name,
+				total_quantity = :total_quantity,
+				total_price = :total_price,
+				total_discount = :total_discount,
+				shipping_fee = :shipping_fee,
+				grand_total = :grand_total,
+				status = :status,
+				created = :created,
+				created_by = :created_by,
+				updated = :updated,
+				updated_by = :updated_by,
+				deleted = :deleted,
+				deleted_by = :deleted_by
+			WHERE entity_id = :entity_id `,
 	}
 )
 
@@ -110,6 +135,7 @@ type FooRepository interface {
 	ExistsByID(id uuid.UUID) (exists bool, err error)
 	ResolveByID(id uuid.UUID) (foo Foo, err error)
 	ResolveItemsByFooIDs(ids []uuid.UUID) (fooItems []FooItem, err error)
+	Update(foo Foo) (err error)
 }
 
 // FooRepositoryMySQL is the MySQL-backed implementation of FooRepository.
@@ -151,69 +177,6 @@ func (r *FooRepositoryMySQL) Create(foo Foo) (err error) {
 
 		e <- nil
 	})
-}
-
-func (r *FooRepositoryMySQL) txCreate(tx *sqlx.Tx, foo Foo) (err error) {
-	stmt, err := tx.PrepareNamed(fooQueries.insertFoo)
-	if err != nil {
-		logger.ErrorWithStack(err)
-		return
-	}
-
-	_, err = stmt.Exec(foo)
-	if err != nil {
-		logger.ErrorWithStack(err)
-	}
-
-	return nil
-}
-
-func (r *FooRepositoryMySQL) txCreateItems(tx *sqlx.Tx, fooItems []FooItem) (err error) {
-	if len(fooItems) == 0 {
-		return
-	}
-
-	query, args, err := r.composeBulkInsertItemQuery(fooItems)
-	if err != nil {
-		return
-	}
-
-	stmt, err := tx.Preparex(query)
-	if err != nil {
-		return
-	}
-
-	_, err = stmt.Stmt.Exec(args...)
-	if err != nil {
-		logger.ErrorWithStack(err)
-	}
-
-	return
-}
-
-func (r *FooRepositoryMySQL) composeBulkInsertItemQuery(fooItems []FooItem) (query string, params []interface{}, err error) {
-	values := []string{}
-	for _, fi := range fooItems {
-		param := map[string]interface{}{
-			"entity_id":    fi.ID,
-			"foo_id":       fi.FooID,
-			"sku":          fi.SKU,
-			"product_name": fi.ProductName,
-			"quantity":     fi.Quantity,
-			"unit_price":   fi.UnitPrice,
-			"total_price":  fi.TotalPrice,
-			"discount":     fi.Discount,
-			"grand_total":  fi.GrandTotal,
-		}
-		q, args, err := sqlx.Named(fooQueries.insertFooItemBulkPlaceholder, param)
-		if err != nil {
-			return query, params, err
-		}
-		values = append(values, q)
-		params = append(params, args...)
-	}
-	query = fmt.Sprintf("%v %v", fooQueries.insertFooItemBulk, strings.Join(values, ","))
-	return
 }
 
 // ExistsByID checks the existence of a Foo by its ID.
@@ -259,6 +222,135 @@ func (r *FooRepositoryMySQL) ResolveItemsByFooIDs(ids []uuid.UUID) (fooItems []F
 	if err != nil {
 		logger.ErrorWithStack(err)
 		return
+	}
+
+	return
+}
+
+// Update updates a Foo.
+func (r *FooRepositoryMySQL) Update(foo Foo) (err error) {
+	exists, err := r.ExistsByID(foo.ID)
+	if err != nil {
+		logger.ErrorWithStack(err)
+		return
+	}
+
+	if !exists {
+		err = failure.NotFound("foo")
+		logger.ErrorWithStack(err)
+		return
+	}
+
+	// transactionally update the Foo
+	// strategy:
+	// 1. delete all the Foo's items
+	// 2. create a new set of Foo's items
+	// 3. update the Foo
+	return r.DB.WithTransaction(func(tx *sqlx.Tx, e chan error) {
+		if err := r.txDeleteItems(tx, foo.ID); err != nil {
+			e <- err
+			return
+		}
+
+		if err := r.txCreateItems(tx, foo.Items); err != nil {
+			e <- err
+			return
+		}
+
+		if err := r.txUpdate(tx, foo); err != nil {
+			e <- err
+			return
+		}
+
+		e <- nil
+	})
+}
+
+// internal methods
+
+// composeBulkInsertItemQuery composes a bulk insert item query given a slice of FooItems.
+func (r *FooRepositoryMySQL) composeBulkInsertItemQuery(fooItems []FooItem) (query string, params []interface{}, err error) {
+	values := []string{}
+	for _, fi := range fooItems {
+		param := map[string]interface{}{
+			"entity_id":    fi.ID,
+			"foo_id":       fi.FooID,
+			"sku":          fi.SKU,
+			"product_name": fi.ProductName,
+			"quantity":     fi.Quantity,
+			"unit_price":   fi.UnitPrice,
+			"total_price":  fi.TotalPrice,
+			"discount":     fi.Discount,
+			"grand_total":  fi.GrandTotal,
+		}
+		q, args, err := sqlx.Named(fooQueries.insertFooItemBulkPlaceholder, param)
+		if err != nil {
+			return query, params, err
+		}
+		values = append(values, q)
+		params = append(params, args...)
+	}
+	query = fmt.Sprintf("%v %v", fooQueries.insertFooItemBulk, strings.Join(values, ","))
+	return
+}
+
+// txCreate creates a Foo transactionally given the *sqlx.Tx param.
+func (r *FooRepositoryMySQL) txCreate(tx *sqlx.Tx, foo Foo) (err error) {
+	stmt, err := tx.PrepareNamed(fooQueries.insertFoo)
+	if err != nil {
+		logger.ErrorWithStack(err)
+		return
+	}
+
+	_, err = stmt.Exec(foo)
+	if err != nil {
+		logger.ErrorWithStack(err)
+	}
+
+	return
+}
+
+// txCreateItems create FooItems transactionally given the *sqlx.Tx param.
+func (r *FooRepositoryMySQL) txCreateItems(tx *sqlx.Tx, fooItems []FooItem) (err error) {
+	if len(fooItems) == 0 {
+		return
+	}
+
+	query, args, err := r.composeBulkInsertItemQuery(fooItems)
+	if err != nil {
+		return
+	}
+
+	stmt, err := tx.Preparex(query)
+	if err != nil {
+		return
+	}
+
+	_, err = stmt.Stmt.Exec(args...)
+	if err != nil {
+		logger.ErrorWithStack(err)
+	}
+
+	return
+}
+
+// txDeleteeItems deletes FooItems based on their FooID transactionally given the *sqlx.Tx param.
+func (r *FooRepositoryMySQL) txDeleteItems(tx *sqlx.Tx, fooID uuid.UUID) (err error) {
+	_, err = tx.Exec("DELETE FROM foo_item WHERE foo_id = ?", fooID.String())
+	return
+}
+
+// txUpdate updates a Foo transactionally, given the *sqlx.Tx param.
+func (r *FooRepositoryMySQL) txUpdate(tx *sqlx.Tx, foo Foo) (err error) {
+	stmt, err := tx.PrepareNamed(fooQueries.updateFoo)
+	if err != nil {
+		logger.ErrorWithStack(err)
+		return
+	}
+
+	_, err = stmt.Exec(foo)
+	if err != nil {
+		logger.ErrorWithStack(err)
 	}
 
 	return

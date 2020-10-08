@@ -2,9 +2,11 @@ package foobarbaz
 
 import (
 	"encoding/json"
+	"fmt"
 	"time"
 
 	"github.com/evermos/boilerplate-go/shared"
+	"github.com/evermos/boilerplate-go/shared/failure"
 	"github.com/evermos/boilerplate-go/shared/nuuid"
 	"github.com/gofrs/uuid"
 	"github.com/guregu/null"
@@ -47,32 +49,9 @@ type Foo struct {
 	CreatedBy     uuid.UUID   `db:"created_by" validate:"required"`
 	Updated       null.Time   `db:"updated"`
 	UpdatedBy     nuuid.NUUID `db:"updated_by"`
+	Deleted       null.Time   `db:"deleted"`
+	DeletedBy     nuuid.NUUID `db:"deleted_by"`
 	Items         []FooItem   `db:"-" validate:"required,dive,required"`
-}
-
-// NewFromRequestFormat creates a new Foo from its request format.
-func (f Foo) NewFromRequestFormat(req FooRequestFormat, userID uuid.UUID) (newFoo Foo) {
-	fooID, _ := uuid.NewV4()
-	newFoo = Foo{
-		ID:          fooID,
-		Name:        req.Name,
-		ShippingFee: req.ShippingFee,
-		Status:      req.Status,
-		Created:     time.Now(),
-		CreatedBy:   userID,
-	}
-
-	requestItems := make([]FooItem, 0)
-	for _, itemRequest := range req.Items {
-		item := FooItem{}
-		item = item.NewFromRequestFormat(itemRequest, fooID)
-		requestItems = append(requestItems, item)
-	}
-	newFoo.Items = requestItems
-
-	newFoo.Recalculate()
-
-	return
 }
 
 // AttachItems attaches FooItems to this Foo.
@@ -83,6 +62,42 @@ func (f *Foo) AttachItems(items []FooItem) Foo {
 		}
 	}
 	return *f
+}
+
+// IsDeleted checks whether a Foo is marked as deleted.
+func (f *Foo) IsDeleted() (deleted bool) {
+	return f.Deleted.Valid && f.DeletedBy.Valid
+}
+
+// MarshalJSON overrides the standard JSON formatting.
+func (f Foo) MarshalJSON() ([]byte, error) {
+	return json.Marshal(f.ToResponseFormat())
+}
+
+// NewFromRequestFormat creates a new Foo from its request format.
+func (f Foo) NewFromRequestFormat(req FooRequestFormat, userID uuid.UUID) (newFoo Foo, err error) {
+	fooID, _ := uuid.NewV4()
+	newFoo = Foo{
+		ID:          fooID,
+		Name:        req.Name,
+		ShippingFee: req.ShippingFee,
+		Status:      req.Status,
+		Created:     time.Now(),
+		CreatedBy:   userID,
+	}
+
+	items := make([]FooItem, 0)
+	for _, requestItem := range req.Items {
+		item := FooItem{}
+		item = item.NewFromRequestFormat(requestItem, fooID)
+		items = append(items, item)
+	}
+	newFoo.Items = items
+
+	newFoo.Recalculate()
+	err = newFoo.Validate()
+
+	return
 }
 
 // Recalculate recalculates totals in this Foo.
@@ -102,10 +117,17 @@ func (f *Foo) Recalculate() {
 	f.GrandTotal = f.TotalPrice - f.TotalDiscount + f.ShippingFee
 }
 
-// Validate validates the entity.
-func (f *Foo) Validate() (err error) {
-	validator := shared.GetValidator()
-	return validator.Struct(f)
+// SoftDelete marks a Foo as deleted by setting the "deleted" and "deletedBy"
+// properties of a Foo.
+func (f *Foo) SoftDelete(userID uuid.UUID) (err error) {
+	if f.IsDeleted() {
+		return failure.Conflict("softDelete", "foo", "already marked as deleted")
+	}
+
+	f.Deleted = null.TimeFrom(time.Now())
+	f.DeletedBy = nuuid.From(userID)
+
+	return
 }
 
 // ToResponseFormat converts this Foo to its response format.
@@ -123,6 +145,8 @@ func (f Foo) ToResponseFormat() FooResponseFormat {
 		CreatedBy:     f.CreatedBy,
 		Updated:       f.Updated,
 		UpdatedBy:     f.UpdatedBy.Ptr(),
+		Deleted:       f.Deleted,
+		DeletedBy:     f.DeletedBy.Ptr(),
 		Items:         make([]FooItemResponseFormat, 0),
 	}
 
@@ -133,18 +157,91 @@ func (f Foo) ToResponseFormat() FooResponseFormat {
 	return resp
 }
 
-// MarshalJSON overrides the standard JSON formatting.
-func (f Foo) MarshalJSON() ([]byte, error) {
-	return json.Marshal(f.ToResponseFormat())
+// Update updates a Foo.
+func (f *Foo) Update(req FooRequestFormat, userID uuid.UUID) (err error) {
+	items := make([]FooItem, 0)
+	for _, requestItem := range req.Items {
+		item := FooItem{}
+		item = item.NewFromRequestFormat(requestItem, f.ID)
+		items = append(items, item)
+	}
+
+	f.Items = items
+	f.Name = req.Name
+	f.ShippingFee = req.ShippingFee
+	f.Updated = null.TimeFrom(time.Now())
+	f.UpdatedBy = nuuid.From(userID)
+
+	if f.Status != req.Status {
+		err = f.UpdateStatus(req.Status)
+		if err != nil {
+			return
+		}
+	}
+
+	f.Recalculate()
+	err = f.Validate()
+
+	return
+}
+
+// UpdateStatus validates a Foo's status change. Allowed state changes are:
+// 1. New --> Pending
+// 2. Pending --> Verified, Paid
+// 3. Verified --> Paid
+// 4. Paid --> InTransit
+// 5. InTransit --> Delivered, FailedToDeliver
+// 6. Delivered --> this is a final state, no change allowed
+// 7. FailedToDeliver --> this is a final state, no change allowed
+func (f *Foo) UpdateStatus(newStatus FooStatus) (err error) {
+	stateChangeNotAllowedError := failure.Conflict(
+		"stateChange",
+		"foo",
+		fmt.Sprintf("cannot change from %s to %s", f.Status, newStatus))
+
+	switch f.Status {
+	case FooStatusNew:
+		if newStatus != FooStatusPending {
+			return stateChangeNotAllowedError
+		}
+	case FooStatusPending:
+		if newStatus != FooStatusVerified && newStatus != FooStatusPaid {
+			return stateChangeNotAllowedError
+		}
+	case FooStatusVerified:
+		if newStatus != FooStatusPaid {
+			return stateChangeNotAllowedError
+		}
+	case FooStatusPaid:
+		if newStatus != FooStatusInTransit {
+			return stateChangeNotAllowedError
+		}
+	case FooStatusInTransit:
+		if newStatus != FooStatusDelivered && newStatus != FooStatusFailedToDeliver {
+			return stateChangeNotAllowedError
+		}
+	case FooStatusDelivered, FooStatusFailedToDeliver:
+		return stateChangeNotAllowedError
+	}
+
+	// passed all state change validations, actually update the status
+	f.Status = newStatus
+
+	return nil
+}
+
+// Validate validates the entity.
+func (f *Foo) Validate() (err error) {
+	validator := shared.GetValidator()
+	return validator.Struct(f)
 }
 
 // FooRequestFormat represents a Foo's standard formatting for JSON deserializing.
 type FooRequestFormat struct {
-	ID          uuid.UUID              `json:"id"`
-	Name        string                 `json:"name"`
-	ShippingFee float64                `json:"shippingFee"`
-	Status      FooStatus              `json:"status"`
-	Items       []FooItemRequestFormat `json:"items"`
+	Name        string                 `json:"name" validate:"required"`
+	ShippingFee float64                `json:"shippingFee" validate:"required,min=0"`
+	Status      FooStatus              `json:"status" validate:"required"`
+	Items       []FooItemRequestFormat `json:"items" validate:"required,dive,required"`
 }
 
 // FooResponseFormat represents a Foo's standard formatting for JSON serializing.
@@ -161,6 +258,8 @@ type FooResponseFormat struct {
 	CreatedBy     uuid.UUID               `json:"createdBy"`
 	Updated       null.Time               `json:"updated,omitempty"`
 	UpdatedBy     *uuid.UUID              `json:"updatedBy,omitempty"`
+	Deleted       null.Time               `json:"deleted,omitempty"`
+	DeletedBy     *uuid.UUID              `json:"deletedBy,omitempty"`
 	Items         []FooItemResponseFormat `json:"items"`
 }
 
@@ -177,6 +276,11 @@ type FooItem struct {
 	TotalPrice  float64   `db:"total_price" validate:"required,min=0"`
 	Discount    float64   `db:"discount" validate:"required,min=0"`
 	GrandTotal  float64   `db:"grand_total" validate:"required,min=0"`
+}
+
+// MarshalJSON overrides the standard JSON formatting.
+func (fi FooItem) MarshalJSON() ([]byte, error) {
+	return json.Marshal(fi.ToResponseFormat())
 }
 
 // NewFromRequestFormat creates a new FooItem from its request format.
@@ -215,20 +319,14 @@ func (fi *FooItem) ToResponseFormat() FooItemResponseFormat {
 	}
 }
 
-// MarshalJSON overrides the standard JSON formatting.
-func (fi FooItem) MarshalJSON() ([]byte, error) {
-	return json.Marshal(fi.ToResponseFormat())
-}
-
 // FooItemRequestFormat represents a FooItem's standard formatting for JSON deserializing.
 type FooItemRequestFormat struct {
-	ID          uuid.UUID `json:"id"`
-	FooID       uuid.UUID `json:"fooId"`
-	SKU         string    `json:"sku"`
-	ProductName string    `json:"productName"`
-	Quantity    int64     `json:"quantity"`
-	UnitPrice   float64   `json:"unitPrice"`
-	Discount    float64   `json:"discount"`
+	ID          uuid.UUID `json:"id" validate:"required"`
+	SKU         string    `json:"sku" validate:"required"`
+	ProductName string    `json:"productName" validate:"required"`
+	Quantity    int64     `json:"quantity" validate:"required,min=1"`
+	UnitPrice   float64   `json:"unitPrice" validate:"required,min=0"`
+	Discount    float64   `json:"discount" validate:"required,min=0"`
 }
 
 // FooItemResponseFormat represents a FooItem's standard formatting for JSON serializing.

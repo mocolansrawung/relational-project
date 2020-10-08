@@ -14,13 +14,17 @@ CREATE TABLE IF NOT EXISTS `foo` (
   `created_by` CHAR(36) NOT NULL,
   `updated` TIMESTAMP NULL DEFAULT NULL,
   `updated_by` CHAR(36) NULL DEFAULT NULL,
+  `deleted` TIMESTAMP NULL DEFAULT NULL,
+  `deleted_by` CHAR(36) NULL DEFAULT NULL,
   PRIMARY KEY (`entity_id`),
   UNIQUE `idx_foo_1` (`name`),
   INDEX `idx_foo_2` (`status`),
   INDEX `idx_foo_3` (`created`),
   INDEX `idx_foo_4` (`created_by`),
   INDEX `idx_foo_5` (`updated`),
-  INDEX `idx_foo_6` (`updated_by`)
+  INDEX `idx_foo_6` (`updated_by`),
+  INDEX `idx_foo_7` (`deleted`),
+  INDEX `idx_foo_8` (`deleted_by`)
 ) ENGINE=InnoDB
 DEFAULT CHARSET=utf8;
 
