@@ -85,8 +85,3 @@ func GetCode(err error) int {
 	}
 	return http.StatusInternalServerError
 }
-
-const (
-	// ErrorSQLNoRowsInResultSet happens when there are now results in an SQL query's result set.
-	ErrorSQLNoRowsInResultSet = "sql: no rows in result set"
-)

@@ -3,6 +3,7 @@ package foobarbaz
 //go:generate go run github.com/golang/mock/mockgen -source foo_repository.go -destination mock/foo_repository_mock.go -package foobarbaz_mock
 
 import (
+	"database/sql"
 	"fmt"
 	"strings"
 
@@ -198,7 +199,7 @@ func (r *FooRepositoryMySQL) ResolveByID(id uuid.UUID) (foo Foo, err error) {
 		&foo,
 		fooQueries.selectFoo+" WHERE foo.entity_id = ?",
 		id.String())
-	if err != nil && err.Error() == failure.ErrorSQLNoRowsInResultSet {
+	if err != nil && err == sql.ErrNoRows {
 		err = failure.NotFound("foo")
 		logger.ErrorWithStack(err)
 		return
