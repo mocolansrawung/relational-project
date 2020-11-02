@@ -8,6 +8,7 @@ import (
 	"github.com/evermos/boilerplate-go/internal/domain/foobarbaz"
 	"github.com/evermos/boilerplate-go/internal/handlers"
 	"github.com/evermos/boilerplate-go/transport/http"
+	"github.com/evermos/boilerplate-go/transport/http/middleware"
 	"github.com/evermos/boilerplate-go/transport/http/router"
 	"github.com/google/wire"
 )
@@ -37,6 +38,10 @@ var domains = wire.NewSet(
 	domainFooBarBaz,
 )
 
+var authMiddleware = wire.NewSet(
+	middleware.ProvideAuthentication,
+)
+
 // Wiring for HTTP routing.
 var routing = wire.NewSet(
 	wire.Struct(new(router.DomainHandlers), "FooBarBazHandler"),
@@ -51,6 +56,8 @@ func InitializeService() *http.HTTP {
 		configurations,
 		// persistences
 		persistences,
+		// middleware
+		authMiddleware,
 		// domains
 		domains,
 		// routing

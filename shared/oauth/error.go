@@ -2,7 +2,7 @@ package oauth
 
 const (
 	ErrorEmptyCredential     string = "Credential can't be empty"
-	ErrorClientNotFound      string = "Client doesnt exists"
+	ErrorClientNotFound      string = "Client does not exist"
 	ErrorInvalidPassword     string = "Invalid password credential"
 	ErrorInvalidClient       string = "Invalid client credentials"
 	ErrorInvalidToken        string = "Invalid Token"

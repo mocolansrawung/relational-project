@@ -8,6 +8,7 @@ import (
 	"github.com/evermos/boilerplate-go/internal/domain/foobarbaz"
 	"github.com/evermos/boilerplate-go/shared"
 	"github.com/evermos/boilerplate-go/shared/failure"
+	"github.com/evermos/boilerplate-go/transport/http/middleware"
 	"github.com/evermos/boilerplate-go/transport/http/response"
 	"github.com/go-chi/chi"
 	"github.com/gofrs/uuid"
@@ -15,23 +16,33 @@ import (
 
 // FooBarBazHandler is the HTTP handler for FooBarBaz domain.
 type FooBarBazHandler struct {
-	FooService foobarbaz.FooService
+	FooService     foobarbaz.FooService
+	AuthMiddleware *middleware.Authentication
 }
 
 // ProvideFooBarBazHandler is the provider for this handler.
-func ProvideFooBarBazHandler(fooService foobarbaz.FooService) FooBarBazHandler {
+func ProvideFooBarBazHandler(fooService foobarbaz.FooService, authMiddleware *middleware.Authentication) FooBarBazHandler {
 	return FooBarBazHandler{
-		FooService: fooService,
+		FooService:     fooService,
+		AuthMiddleware: authMiddleware,
 	}
 }
 
 // Router sets up the router for this domain.
 func (h *FooBarBazHandler) Router(r chi.Router) {
 	r.Route("/foobarbaz", func(r chi.Router) {
-		r.Post("/foo", h.CreateFoo)
-		r.Delete("/foo/{id}", h.SoftDeleteFoo)
-		r.Get("/foo/{id}", h.ResolveFooByID)
-		r.Put("/foo/{id}", h.UpdateFoo)
+		r.Group(func(r chi.Router) {
+			r.Use(h.AuthMiddleware.ClientCredential)
+			r.Get("/foo/{id}", h.ResolveFooByID)
+		})
+
+		r.Group(func(r chi.Router) {
+			r.Use(h.AuthMiddleware.Password)
+			r.Post("/foo", h.CreateFoo)
+			r.Delete("/foo/{id}", h.SoftDeleteFoo)
+			r.Put("/foo/{id}", h.UpdateFoo)
+		})
+
 	})
 }
 
@@ -39,6 +50,7 @@ func (h *FooBarBazHandler) Router(r chi.Router) {
 // @Summary Create a new Foo.
 // @Description This endpoint creates a new Foo.
 // @Tags foobarbaz/foo
+// @Param Authorization header string true "Bearer <token>"
 // @Param foo body foobarbaz.FooRequestFormat true "The Foo to be created."
 // @Produce json
 // @Success 201 {object} response.Base{data=foobarbaz.FooResponseFormat}
@@ -76,6 +88,7 @@ func (h *FooBarBazHandler) CreateFoo(w http.ResponseWriter, r *http.Request) {
 // @Summary Resolve Foo by ID
 // @Description This endpoint resolves a Foo by its ID.
 // @Tags foobarbaz/foo
+// @Param Authorization header string true "Bearer <token>"
 // @Param id path string true "The Foo's identifier."
 // @Param withItems query string false "Fetch with items, default false."
 // @Produce json
@@ -108,6 +121,7 @@ func (h *FooBarBazHandler) ResolveFooByID(w http.ResponseWriter, r *http.Request
 // @Description This endpoint marks an existing Foo as deleted. This is done by
 // @Description setting the "deleted" and "deletedBy" properties of the Foo.
 // @Tags foobarbaz/foo
+// @Param Authorization header string true "Bearer <token>"
 // @Param id path string true "The Foo's identifier."
 // @Produce json
 // @Success 200 {object} response.Base{data=foobarbaz.FooResponseFormat}
@@ -138,6 +152,7 @@ func (h *FooBarBazHandler) SoftDeleteFoo(w http.ResponseWriter, r *http.Request)
 // @Summary Update a Foo.
 // @Description This endpoint updates an existing Foo.
 // @Tags foobarbaz/foo
+// @Param Authorization header string true "Bearer <token>"
 // @Param id path string true "The Foo's identifier."
 // @Param foo body foobarbaz.FooRequestFormat true "The Foo to be updated."
 // @Produce json

@@ -74,7 +74,11 @@ func (a *TokenStore) createAccessToken(accessToken OauthAccessToken) error {
 
 func (a *TokenStore) resolveAccessTokenByAccessToken(accessToken string) (oauthAccessToken OauthAccessToken, err error) {
 	err = a.db.Get(&oauthAccessToken, querySelectAccessToken+" WHERE access_token = ?", accessToken)
-	if err != nil {
+	switch {
+	case err == sql.ErrNoRows:
+		err = errors.New(ErrorClientNotFound)
+		return
+	case err != nil:
 		return
 	}
 
