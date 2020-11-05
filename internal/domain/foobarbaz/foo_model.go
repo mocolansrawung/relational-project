@@ -33,6 +33,10 @@ const (
 	FooStatusFailedToDeliver FooStatus = "failedToDeliver"
 )
 
+var (
+	FooBarBazEventType = "evm.boilerplate-go.foo-bar-baz.fifo"
+)
+
 //// Foo
 
 // Foo is a sample parent entity model.

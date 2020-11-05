@@ -64,6 +64,22 @@ type Config struct {
 			GracePeriodSeconds   int64 `mapstructure:"GRACE_PERIOD_SECONDS"`
 		}
 	}
+
+	Event struct {
+		Producer struct {
+			SQS struct {
+				AccessKeyID        string `mapstructure:"ACCESS_KEY_ID"`
+				DelayPeriodSeconds int64  `mapstructure:"DELAY_PERIOD_SECONDS"`
+				MaxRetries         int    `mapstructure:"MAX_RETRIES"`
+				Region             string `mapstructure:"REGION"`
+				SecretAccessKey    string `mapstructure:"SECRET_ACCESS_KEY"`
+
+				FooBar struct {
+					BaseURL string `mapstructure:"BASE_URL"`
+				}
+			}
+		}
+	}
 }
 
 var (

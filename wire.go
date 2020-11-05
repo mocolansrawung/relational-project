@@ -4,6 +4,7 @@ package main
 
 import (
 	"github.com/evermos/boilerplate-go/configs"
+	"github.com/evermos/boilerplate-go/event/producer"
 	"github.com/evermos/boilerplate-go/infras"
 	"github.com/evermos/boilerplate-go/internal/domain/foobarbaz"
 	"github.com/evermos/boilerplate-go/internal/handlers"
@@ -31,6 +32,9 @@ var domainFooBarBaz = wire.NewSet(
 	// FooRepository interface and implementation
 	foobarbaz.ProvideFooRepositoryMySQL,
 	wire.Bind(new(foobarbaz.FooRepository), new(*foobarbaz.FooRepositoryMySQL)),
+	// Producer interface and implementation
+	producer.NewSqsProducer,
+	wire.Bind(new(producer.Producer), new(*producer.SQSProducer)),
 )
 
 // Wiring for all domains.

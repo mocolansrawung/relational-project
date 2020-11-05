@@ -3,6 +3,8 @@ package foobarbaz
 //go:generate go run github.com/golang/mock/mockgen -source foo_service.go -destination mock/foo_service_mock.go -package foobarbaz_mock
 
 import (
+	"github.com/evermos/boilerplate-go/configs"
+	"github.com/evermos/boilerplate-go/event/producer"
 	"github.com/evermos/boilerplate-go/shared/failure"
 	"github.com/gofrs/uuid"
 )
@@ -18,12 +20,17 @@ type FooService interface {
 // FooServiceImpl is the service implementation for Foo entities.
 type FooServiceImpl struct {
 	FooRepository FooRepository
+	Producer      producer.Producer
+	Config        *configs.Config
 }
 
 // ProvideFooServiceImpl is the provider for this service.
-func ProvideFooServiceImpl(fooRepository FooRepository) *FooServiceImpl {
+func ProvideFooServiceImpl(fooRepository FooRepository, producer producer.Producer, config *configs.Config) *FooServiceImpl {
 	s := new(FooServiceImpl)
 	s.FooRepository = fooRepository
+	s.Config = config
+	s.Producer = producer
+
 	return s
 }
 
@@ -39,6 +46,11 @@ func (s *FooServiceImpl) Create(requestFormat FooRequestFormat, userID uuid.UUID
 	}
 
 	err = s.FooRepository.Create(foo)
+
+	// Fifo
+	e := producer.Wrapper(FooBarBazEventType, requestFormat)
+	s.Producer.Send(e, s.Config.Event.Producer.SQS.FooBar.BaseURL)
+
 	return
 }
 
