@@ -23,17 +23,17 @@ func (m *SQSConfig) IsExpired() bool {
 
 func (m *SQSConfig) Retrieve() (credentials.Value, error) {
 	return credentials.Value{
-		AccessKeyID:     m.Config.Event.Producer.SQS.AccessKeyID,
-		SecretAccessKey: m.Config.Event.Producer.SQS.SecretAccessKey,
+		AccessKeyID:     m.Config.Event.Consumer.SQS.AccessKeyID,
+		SecretAccessKey: m.Config.Event.Consumer.SQS.SecretAccessKey,
 	}, nil
 }
 
 func createSQSConfig(config *configs.Config) (*session.Session, error) {
 	sqsConfig := SQSConfig{Config: *config}
 	return session.NewSession(&aws.Config{
-		Region:      &config.Event.Producer.SQS.Region,
+		Region:      &config.Event.Consumer.SQS.Region,
 		Credentials: credentials.NewCredentials(&sqsConfig),
-		MaxRetries:  aws.Int(config.Event.Producer.SQS.MaxRetries),
+		MaxRetries:  aws.Int(config.Event.Consumer.SQS.MaxRetries),
 	})
 }
 

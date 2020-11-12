@@ -18,7 +18,7 @@ type FooBarConsumerImpl struct {
 	Consumer   consumer.Consumer
 }
 
-// ProvideFooBarBazHandlerImpl is the provider for this handler.
+// ProvideFooBarConsumerImpl is the provider for this consumer.
 func ProvideFooBarConsumerImpl(config *configs.Config, fooService foobarbaz.FooService) *FooBarConsumerImpl {
 	f := FooBarConsumerImpl{}
 	f.Config = config
@@ -58,7 +58,7 @@ func (c *FooBarConsumerImpl) processEvent(value []byte) error {
 }
 
 func (c *FooBarConsumerImpl) updateProcessFoo(foo foobarbaz.FooRequestFormat) error {
-	backoffWithMaxRetry := backoff.WithMaxRetries(backoff.NewExponentialBackOff(), c.Config.Event.Consumer.SQS.MaxRetries)
+	backoffWithMaxRetry := backoff.WithMaxRetries(backoff.NewExponentialBackOff(), c.Config.Event.Consumer.SQS.MaxRetriesConsume)
 
 	// example process
 	// TODO: use proper example function

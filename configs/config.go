@@ -71,7 +71,8 @@ type Config struct {
 				AccessKeyID           string `mapstructure:"ACCESS_KEY_ID"`
 				IntervalPeriodSeconds int64  `mapstructure:"INTERVAL_PERIOD_SECONDS"`
 				MaxMessage            int64  `mapstructure:"MAX_MESSAGE"`
-				MaxRetries            uint64 `mapstructure:"MAX_RETRIES"`
+				MaxRetries            int    `mapstructure:"MAX_RETRIES"`
+				MaxRetriesConsume     uint64 `mapstructure:"MAX_RETRIES_CONSUME"`
 				Region                string `mapstructure:"REGION"`
 				SecretAccessKey       string `mapstructure:"SECRET_ACCESS_KEY"`
 				WaitTimeSeconds       int64  `mapstructure:"WAIT_TIME_SECONDS"`
