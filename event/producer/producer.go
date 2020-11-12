@@ -1,5 +1,9 @@
 package producer
 
+import (
+	"github.com/evermos/boilerplate-go/event/model"
+)
+
 type Producer interface {
-	Send(event EventWrapper, channel string)
+	Send(event model.EventWrapper, channel string)
 }

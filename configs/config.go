@@ -66,6 +66,22 @@ type Config struct {
 	}
 
 	Event struct {
+		Consumer struct {
+			SQS struct {
+				AccessKeyID           string `mapstructure:"ACCESS_KEY_ID"`
+				IntervalPeriodSeconds int64  `mapstructure:"INTERVAL_PERIOD_SECONDS"`
+				MaxMessage            int64  `mapstructure:"MAX_MESSAGE"`
+				MaxRetries            uint64 `mapstructure:"MAX_RETRIES"`
+				Region                string `mapstructure:"REGION"`
+				SecretAccessKey       string `mapstructure:"SECRET_ACCESS_KEY"`
+				WaitTimeSeconds       int64  `mapstructure:"WAIT_TIME_SECONDS"`
+
+				TopicURLs struct {
+					FooBar string `mapstructure:"FOOBAR"`
+				} `mapstructure:"TOPIC_URLS"`
+			}
+		}
+
 		Producer struct {
 			SQS struct {
 				AccessKeyID        string `mapstructure:"ACCESS_KEY_ID"`
@@ -74,9 +90,9 @@ type Config struct {
 				Region             string `mapstructure:"REGION"`
 				SecretAccessKey    string `mapstructure:"SECRET_ACCESS_KEY"`
 
-				FooBar struct {
-					BaseURL string `mapstructure:"BASE_URL"`
-				}
+				TopicURLs struct {
+					FooBar string `mapstructure:"FOOBAR"`
+				} `mapstructure:"TOPIC_URLS"`
 			}
 		}
 	}

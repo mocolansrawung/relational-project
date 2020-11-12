@@ -4,12 +4,12 @@ import (
 	"encoding/json"
 	"strings"
 
-	"github.com/evermos/boilerplate-go/configs"
-
 	"github.com/aws/aws-sdk-go/aws"
 	"github.com/aws/aws-sdk-go/aws/credentials"
 	"github.com/aws/aws-sdk-go/aws/session"
 	"github.com/aws/aws-sdk-go/service/sqs"
+	"github.com/evermos/boilerplate-go/configs"
+	"github.com/evermos/boilerplate-go/event/model"
 	"github.com/gofrs/uuid"
 	"github.com/rs/zerolog/log"
 )
@@ -60,7 +60,7 @@ func NewSqsProducer(config *configs.Config) *SQSProducer {
 }
 
 // Send is function to produce event to Queue
-func (p *SQSProducer) Send(event EventWrapper, url string) {
+func (p *SQSProducer) Send(event model.EventWrapper, url string) {
 	value, err := json.Marshal(event)
 	if err != nil {
 		log.Err(err).Msgf("Error converting event to json: %v", err)

@@ -4,6 +4,7 @@ package foobarbaz
 
 import (
 	"github.com/evermos/boilerplate-go/configs"
+	"github.com/evermos/boilerplate-go/event/model"
 	"github.com/evermos/boilerplate-go/event/producer"
 	"github.com/evermos/boilerplate-go/shared/failure"
 	"github.com/gofrs/uuid"
@@ -48,8 +49,8 @@ func (s *FooServiceImpl) Create(requestFormat FooRequestFormat, userID uuid.UUID
 	err = s.FooRepository.Create(foo)
 
 	// Fifo
-	e := producer.Wrapper(FooBarBazEventType, requestFormat)
-	s.Producer.Send(e, s.Config.Event.Producer.SQS.FooBar.BaseURL)
+	e := model.Wrapper(FooBarBazEventType, requestFormat)
+	s.Producer.Send(e, s.Config.Event.Producer.SQS.TopicURLs.FooBar)
 
 	return
 }

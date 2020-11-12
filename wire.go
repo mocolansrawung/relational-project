@@ -4,6 +4,8 @@ package main
 
 import (
 	"github.com/evermos/boilerplate-go/configs"
+	"github.com/evermos/boilerplate-go/event"
+	fooBarEvent "github.com/evermos/boilerplate-go/event/domain/foobarbaz"
 	"github.com/evermos/boilerplate-go/event/producer"
 	"github.com/evermos/boilerplate-go/infras"
 	"github.com/evermos/boilerplate-go/internal/domain/foobarbaz"
@@ -53,6 +55,13 @@ var routing = wire.NewSet(
 	router.ProvideRouter,
 )
 
+// Wiring for all domains event consumer.
+var evco = wire.NewSet(
+	fooBarEvent.ProvideFooBarConsumerImpl,
+	wire.Bind(new(event.EventConsumer), new(*fooBarEvent.FooBarConsumerImpl)),
+	event.ProvideEvent,
+)
+
 // Wiring for everything.
 func InitializeService() *http.HTTP {
 	wire.Build(
@@ -69,4 +78,19 @@ func InitializeService() *http.HTTP {
 		// selected transport layer
 		http.ProvideHTTP)
 	return &http.HTTP{}
+}
+
+// Wiring the event needs.
+func InitializeEvent() event.Event {
+	wire.Build(
+		// configurations
+		configurations,
+		// persistences
+		persistences,
+		// domains
+		domains,
+		// event consumer
+		evco)
+
+	return event.Event{}
 }
