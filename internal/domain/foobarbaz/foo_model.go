@@ -48,7 +48,7 @@ type Foo struct {
 	TotalDiscount float64     `db:"total_discount" validate:"required,min=0"`
 	ShippingFee   float64     `db:"shipping_fee" validate:"required,min=0"`
 	GrandTotal    float64     `db:"grand_total" validate:"required,min=0"`
-	Status        FooStatus   `db:"status" validate:"required"`
+	Status        FooStatus   `db:"status" validate:"required,oneof=new pending verified paid inTransit delivered failedToDeliver"`
 	Created       time.Time   `db:"created" validate:"required"`
 	CreatedBy     uuid.UUID   `db:"created_by" validate:"required"`
 	Updated       null.Time   `db:"updated"`

@@ -55,6 +55,43 @@ type Config struct {
 		}
 	}
 
+	Event struct {
+		Consumer struct {
+			SQS struct {
+				AccessKeyID       string `mapstructure:"ACCESS_KEY_ID"`
+				BackoffSeconds    int    `mapstructure:"BACKOFF_SECONDS"`
+				MaxMessage        int64  `mapstructure:"MAX_MESSAGE"`
+				MaxRetries        int    `mapstructure:"MAX_RETRIES"`
+				MaxRetriesConsume int    `mapstructure:"MAX_RETRIES_CONSUME"`
+				Region            string `mapstructure:"REGION"`
+				SecretAccessKey   string `mapstructure:"SECRET_ACCESS_KEY"`
+				WaitTimeSeconds   int64  `mapstructure:"WAIT_TIME_SECONDS"`
+
+				Topics struct {
+					FooBarBaz struct {
+						Enabled bool   `mapstructure:"ENABLED"`
+						URL     string `mapstructure:"URL"`
+					} `mapstructure:"FOOBARBAZ"`
+				}
+			}
+		}
+
+		Producer struct {
+			SNS struct {
+				AccessKeyID     string `mapstructure:"ACCESS_KEY_ID"`
+				MaxRetries      int    `mapstructure:"MAX_RETRIES"`
+				Region          string `mapstructure:"REGION"`
+				SecretAccessKey string `mapstructure:"SECRET_ACCESS_KEY"`
+				Topics          struct {
+					FooCreated struct {
+						ARN     string `mapstructure:"ARN"`
+						Enabled bool   `mapstructure:"ENABLED"`
+					} `mapstructure:"FOO_CREATED"`
+				}
+			}
+		}
+	}
+
 	Server struct {
 		Env      string `mapstructure:"ENV"`
 		LogLevel string `mapstructure:"LOG_LEVEL"`
@@ -62,39 +99,6 @@ type Config struct {
 		Shutdown struct {
 			CleanupPeriodSeconds int64 `mapstructure:"CLEANUP_PERIOD_SECONDS"`
 			GracePeriodSeconds   int64 `mapstructure:"GRACE_PERIOD_SECONDS"`
-		}
-	}
-
-	Event struct {
-		Consumer struct {
-			SQS struct {
-				AccessKeyID           string `mapstructure:"ACCESS_KEY_ID"`
-				IntervalPeriodSeconds int64  `mapstructure:"INTERVAL_PERIOD_SECONDS"`
-				MaxMessage            int64  `mapstructure:"MAX_MESSAGE"`
-				MaxRetries            int    `mapstructure:"MAX_RETRIES"`
-				MaxRetriesConsume     uint64 `mapstructure:"MAX_RETRIES_CONSUME"`
-				Region                string `mapstructure:"REGION"`
-				SecretAccessKey       string `mapstructure:"SECRET_ACCESS_KEY"`
-				WaitTimeSeconds       int64  `mapstructure:"WAIT_TIME_SECONDS"`
-
-				TopicURLs struct {
-					FooBar string `mapstructure:"FOOBAR"`
-				} `mapstructure:"TOPIC_URLS"`
-			}
-		}
-
-		Producer struct {
-			SQS struct {
-				AccessKeyID        string `mapstructure:"ACCESS_KEY_ID"`
-				DelayPeriodSeconds int64  `mapstructure:"DELAY_PERIOD_SECONDS"`
-				MaxRetries         int    `mapstructure:"MAX_RETRIES"`
-				Region             string `mapstructure:"REGION"`
-				SecretAccessKey    string `mapstructure:"SECRET_ACCESS_KEY"`
-
-				TopicURLs struct {
-					FooBar string `mapstructure:"FOOBAR"`
-				} `mapstructure:"TOPIC_URLS"`
-			}
 		}
 	}
 }

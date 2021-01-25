@@ -1,9 +1,8 @@
 package producer
 
-import (
-	"github.com/evermos/boilerplate-go/event/model"
-)
+import "github.com/evermos/boilerplate-go/event/model"
 
+// Producer represents an event producer interface.
 type Producer interface {
-	Send(event model.EventWrapper, channel string)
+	Publish(request model.PublishRequest)
 }

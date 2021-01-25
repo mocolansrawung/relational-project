@@ -48,9 +48,17 @@ func (s *FooServiceImpl) Create(requestFormat FooRequestFormat, userID uuid.UUID
 
 	err = s.FooRepository.Create(foo)
 
-	// Fifo
-	e := model.Wrapper(FooBarBazEventType, requestFormat)
-	s.Producer.Send(e, s.Config.Event.Producer.SQS.TopicURLs.FooBar)
+	if err != nil {
+		return
+	}
+
+	if s.Config.Event.Producer.SNS.Topics.FooCreated.Enabled {
+		e := model.NewEvent(FooBarBazEventType, requestFormat)
+		s.Producer.Publish(model.PublishRequest{
+			Event: e,
+			Topic: s.Config.Event.Producer.SNS.Topics.FooCreated.ARN,
+		})
+	}
 
 	return
 }

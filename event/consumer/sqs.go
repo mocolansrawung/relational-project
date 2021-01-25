@@ -11,16 +11,20 @@ import (
 	"github.com/rs/zerolog/log"
 )
 
+// Process represents the processing function of the message consumer.
 type Process func(e []byte) error
 
+// SQSConfig represents an SQS configuration object.
 type SQSConfig struct {
 	Config configs.Config
 }
 
+// IsExpired checks whether the configuration is expired.
 func (m *SQSConfig) IsExpired() bool {
 	return false
 }
 
+// Retrieve performs an SQS retrieve function.
 func (m *SQSConfig) Retrieve() (credentials.Value, error) {
 	return credentials.Value{
 		AccessKeyID:     m.Config.Event.Consumer.SQS.AccessKeyID,
@@ -37,25 +41,27 @@ func createSQSConfig(config *configs.Config) (*session.Session, error) {
 	})
 }
 
+// SQSConsumer represents an SQS consumer.
 type SQSConsumer struct {
 	Process Process
 	config  *configs.Config
 	sqs     *sqs.SQS
 }
 
-// NewConsumer create object Consumer
+// NewSQSConsumer create object Consumer
 func NewSQSConsumer(config *configs.Config) *SQSConsumer {
 	sess, err := createSQSConfig(config)
 	if err != nil {
-		log.Fatal().Err(err).Msg("Failed creating sqs config")
+		log.Fatal().Err(err).Msg("failed creating sqs config")
 	}
 	return &SQSConsumer{config: config, sqs: sqs.New(sess)}
 }
 
 // Listen is a function to listen new message from sqs queue
 func (p *SQSConsumer) Listen(url string) {
-	log.Info().Msgf("Start listen url : %v", url)
+	log.Info().Str("url", url).Msg("SQS Consumer will start polling.")
 
+	retries := 0
 	for {
 		receiveResp, err := p.sqs.ReceiveMessage(&sqs.ReceiveMessageInput{
 			QueueUrl:            aws.String(url),
@@ -63,22 +69,36 @@ func (p *SQSConsumer) Listen(url string) {
 			WaitTimeSeconds:     aws.Int64(p.config.Event.Consumer.SQS.WaitTimeSeconds),
 		})
 		if err != nil {
-			log.Err(err).Msgf("error receiving message :")
+			if retries == p.config.Event.Consumer.SQS.MaxRetriesConsume {
+				log.Error().Err(err).Int("retries", retries).Msg("failed receiving message after maximum retries, failing permanently")
+				return
+			}
+
+			log.
+				Error().
+				Err(err).
+				Str("url", url).
+				Int("retries", retries).
+				Int("backoffSeconds", p.config.Event.Consumer.SQS.BackoffSeconds).
+				Msg("failed receiving message, will retry")
+			retries++
+			time.Sleep(time.Duration(p.config.Event.Consumer.SQS.BackoffSeconds) * time.Second)
+			continue
+		} else {
+			retries = 0
 		}
 
 		for _, message := range receiveResp.Messages {
 			err := p.Process([]byte(*message.Body))
 			if err != nil {
-				log.Err(err).Msgf("error process message :")
+				log.Error().Err(err).Msg("failed processing message")
 			}
 
 			err = p.deleteMessage(message, url)
 			if err != nil {
-				log.Err(err).Msgf("error delete message :")
+				log.Error().Err(err).Msg("failed deleting message")
 			}
 		}
-
-		time.Sleep(time.Duration(p.config.Event.Consumer.SQS.IntervalPeriodSeconds) * time.Second)
 	}
 }
 
@@ -88,7 +108,7 @@ func (p *SQSConsumer) deleteMessage(msg *sqs.Message, url string) error {
 		ReceiptHandle: msg.ReceiptHandle,
 	})
 	if err != nil {
-		log.Err(err).Msgf("Error DeleteMessage: %v, Message output: %v", err, output)
+		log.Err(err).Interface("output", output).Msg("failed deleting message")
 		return err
 	}
 	return nil
