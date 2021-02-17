@@ -42,6 +42,29 @@ func (a *Authentication) ClientCredential(next http.Handler) http.Handler {
 	})
 }
 
+func (a *Authentication) ClientCredentialWithQueryParameter(next http.Handler) http.Handler {
+	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		params := r.URL.Query()
+		token := params.Get("token")
+		tokenType := params.Get("token_type")
+		accessToken := tokenType + " " + token
+
+		auth := oauth.New(a.db.Read, oauth.Config{})
+		parseToken, err := auth.ParseWithAccessToken(accessToken)
+		if err != nil {
+			response.WithMessage(w, http.StatusUnauthorized, err.Error())
+			return
+		}
+
+		if !parseToken.VerifyExpireIn() {
+			response.WithMessage(w, http.StatusUnauthorized, err.Error())
+			return
+		}
+
+		next.ServeHTTP(w, r)
+	})
+}
+
 func (a *Authentication) Password(next http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		accessToken := r.Header.Get(HeaderAuthorization)
