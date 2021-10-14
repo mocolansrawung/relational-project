@@ -17,7 +17,7 @@ require (
 	github.com/gofrs/uuid v3.3.0+incompatible
 	github.com/golang/mock v1.4.4
 	github.com/google/go-cmp v0.5.2 // indirect
-	github.com/google/wire v0.4.0
+	github.com/google/wire v0.5.0
 	github.com/guregu/null v4.0.0+incompatible
 	github.com/jmoiron/sqlx v1.2.1-0.20190826204134-d7d95172beb5
 	github.com/kr/text v0.2.0 // indirect

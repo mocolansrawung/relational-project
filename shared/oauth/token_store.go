@@ -63,6 +63,7 @@ func (a *TokenStore) createAccessToken(accessToken OauthAccessToken) error {
 	if err != nil {
 		return err
 	}
+	defer stmt.Close()
 
 	_, err = stmt.Exec(accessToken)
 	if err != nil {

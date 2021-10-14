@@ -302,6 +302,7 @@ func (r *FooRepositoryMySQL) txCreate(tx *sqlx.Tx, foo Foo) (err error) {
 		logger.ErrorWithStack(err)
 		return
 	}
+	defer stmt.Close()
 
 	_, err = stmt.Exec(foo)
 	if err != nil {
@@ -326,6 +327,7 @@ func (r *FooRepositoryMySQL) txCreateItems(tx *sqlx.Tx, fooItems []FooItem) (err
 	if err != nil {
 		return
 	}
+	defer stmt.Close()
 
 	_, err = stmt.Stmt.Exec(args...)
 	if err != nil {
@@ -348,6 +350,7 @@ func (r *FooRepositoryMySQL) txUpdate(tx *sqlx.Tx, foo Foo) (err error) {
 		logger.ErrorWithStack(err)
 		return
 	}
+	defer stmt.Close()
 
 	_, err = stmt.Exec(foo)
 	if err != nil {

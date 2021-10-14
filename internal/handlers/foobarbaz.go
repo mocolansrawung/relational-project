@@ -50,7 +50,7 @@ func (h *FooBarBazHandler) Router(r chi.Router) {
 // @Summary Create a new Foo.
 // @Description This endpoint creates a new Foo.
 // @Tags foobarbaz/foo
-// @Param Authorization header string true "Bearer <token>"
+// @Security EVMOauthToken
 // @Param foo body foobarbaz.FooRequestFormat true "The Foo to be created."
 // @Produce json
 // @Success 201 {object} response.Base{data=foobarbaz.FooResponseFormat}
@@ -88,7 +88,7 @@ func (h *FooBarBazHandler) CreateFoo(w http.ResponseWriter, r *http.Request) {
 // @Summary Resolve Foo by ID
 // @Description This endpoint resolves a Foo by its ID.
 // @Tags foobarbaz/foo
-// @Param Authorization header string true "Bearer <token>"
+// @Security EVMOauthToken
 // @Param id path string true "The Foo's identifier."
 // @Param withItems query string false "Fetch with items, default false."
 // @Produce json
@@ -121,7 +121,7 @@ func (h *FooBarBazHandler) ResolveFooByID(w http.ResponseWriter, r *http.Request
 // @Description This endpoint marks an existing Foo as deleted. This is done by
 // @Description setting the "deleted" and "deletedBy" properties of the Foo.
 // @Tags foobarbaz/foo
-// @Param Authorization header string true "Bearer <token>"
+// @Security EVMOauthToken
 // @Param id path string true "The Foo's identifier."
 // @Produce json
 // @Success 200 {object} response.Base{data=foobarbaz.FooResponseFormat}
@@ -152,7 +152,7 @@ func (h *FooBarBazHandler) SoftDeleteFoo(w http.ResponseWriter, r *http.Request)
 // @Summary Update a Foo.
 // @Description This endpoint updates an existing Foo.
 // @Tags foobarbaz/foo
-// @Param Authorization header string true "Bearer <token>"
+// @Security EVMOauthToken
 // @Param id path string true "The Foo's identifier."
 // @Param foo body foobarbaz.FooRequestFormat true "The Foo to be updated."
 // @Produce json

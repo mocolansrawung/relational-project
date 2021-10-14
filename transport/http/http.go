@@ -3,7 +3,6 @@ package http
 import (
 	"fmt"
 	"net/http"
-	netHttp "net/http"
 	"os"
 	"os/signal"
 	"strings"
@@ -69,7 +68,7 @@ func (h *HTTP) SetupAndServe() {
 
 	log.Info().Str("port", h.Config.Server.Port).Msg("Starting up HTTP server.")
 
-	err := netHttp.ListenAndServe(":"+h.Config.Server.Port, h.mux)
+	err := http.ListenAndServe(":"+h.Config.Server.Port, h.mux)
 	if err != nil {
 		logger.ErrorWithStack(err)
 	}
@@ -182,7 +181,7 @@ func (h *HTTP) setupCORS() {
 // @Success 200 {object} response.Base
 // @Failure 503 {object} response.Base
 // @Router /health [get]
-func (h *HTTP) HealthCheck(w netHttp.ResponseWriter, r *netHttp.Request) {
+func (h *HTTP) HealthCheck(w http.ResponseWriter, r *http.Request) {
 	if err := h.DB.Read.Ping(); err != nil {
 		logger.ErrorWithStack(err)
 		response.WithUnhealthy(w)
