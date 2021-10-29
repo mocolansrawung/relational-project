@@ -1,4 +1,6 @@
-podTemplate(containers: [
+podTemplate(
+    nodeSelector: 'evermos.com/serviceClass=t3a-large-jenkins',
+    containers: [
     containerTemplate(name: 'docker', image: 'docker:19.03.6', command: 'cat', ttyEnabled: true),
     containerTemplate(
         name: 'sonarqube',
@@ -118,7 +120,7 @@ podTemplate(containers: [
             }
 
             stage('Notification') {
-                discordSend description: "${message}", footer: "${appFullName}", result: currentBuild.currentResult, title: "$JOB_NAME", webhookURL: "$DISCORD_WEBHOOK"
+                notify("slack","${currentBuild.currentResult}","${message}","${appFullName}","#jenkins-build")
             }
         }
     }
