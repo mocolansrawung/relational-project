@@ -1,17 +1,64 @@
 podTemplate(
-    nodeSelector: 'evermos.com/serviceClass=t3a-large-jenkins',
-    containers: [
-    containerTemplate(name: 'docker', image: 'docker:19.03.6', command: 'cat', ttyEnabled: true),
-    containerTemplate(
-        name: 'sonarqube',
-        image: 'cloudbees/java-build-tools:2.5.1',
-        command: 'cat',
-        ttyEnabled: true
-    ),
-  ],
-  volumes: [
-    hostPathVolume(mountPath: '/var/run/docker.sock', hostPath: '/var/run/docker.sock')
-  ]
+yaml: '''
+apiVersion: v1
+kind: Pod
+metadata:
+  name: kaniko
+spec:
+  containers:
+  - name: kaniko
+    image: gcr.io/kaniko-project/executor:debug
+    imagePullPolicy: "IfNotPresent"
+    command:
+    - cat
+    tty: true
+    volumeMounts:
+    - mountPath: "/kaniko/.docker"
+      name: "volume-1"
+      readOnly: false
+    - mountPath: "/root/.aws"
+      name: "volume-0"
+      readOnly: false
+  - name: kaniko2
+    image: gcr.io/kaniko-project/executor:debug
+    imagePullPolicy: "IfNotPresent"
+    command:
+    - cat
+    tty: true
+    volumeMounts:
+    - mountPath: "/kaniko/.docker"
+      name: "volume-1"
+      readOnly: false
+    - mountPath: "/root/.aws"
+      name: "volume-0"
+      readOnly: false
+  - image: "jenkins/inbound-agent:4.10-3"
+    name: "jnlp"
+    resources:
+      limits: {}
+      requests:
+        memory: "256Mi"
+        cpu: "100m"
+  - command:
+    - "cat"
+    image: "openjdk:11"
+    imagePullPolicy: "IfNotPresent"
+    name: "sonarqube"
+    resources:
+      limits: {}
+      requests: {}
+    tty: true
+  volumes:
+  - name: "volume-0"
+    secret:
+      secretName: "aws-cli"
+  - configMap:
+      name: "docker-config"
+    name: "volume-1"
+  restartPolicy: "Never"
+  nodeSelector:
+    evermos.com/serviceClass: t3a-large-jenkins
+'''
   ) {
     node(POD_LABEL) {
         def appName = "boilerplate-go"
@@ -77,44 +124,37 @@ podTemplate(
 
         // Check version compatibility on PR branches only.
         if(env.BRANCH_NAME =~ 'PR-.*') {
-            stage('Check Go Version Compatibility') {
-                def compatibleGoVersion = [ '1.14', '1.15' ]
-                def buildJob = [:]
-                for (ver in compatibleGoVersion) {
-                    def goVer = ver.trim()
-                    buildJob["Run build with go version ${goVer}"] = {
-                        stage("Test build compatibility for Go version ${goVer}"){
-                            container('docker') {
+            parallel (
+                "1.14": {
+                    stage ("compability Go 1.14"){
+                        container("kaniko") {
                                 script {
-                                    sh "docker build --build-arg GO_VERSION=${goVer} --network=host -t be-boilerplate-go:test-${goVer} ."
-                                }
+                                    sh "/kaniko/executor --build-arg GO_VERSION=1.14 --context `pwd` --no-push --destination boilerplate:test-1.14"                                
+                                    }
                             }
+                    }
+                },
+                "1.15": {
+                    stage ("compability Go 1.15") {
+                            container("kaniko2") {
+                                    script {
+                                        sh "/kaniko/executor --build-arg GO_VERSION=1.15 --context `pwd` --no-push --destination boilerplate:test-1.15"                                
+                                        }
+                                }
                         }
                     }
-                }
-                parallel buildJob
-            }
+                
+            )
         }
 
         // Build and push the image and notify via Discord only on PR merge to master.
         if (env.BRANCH_NAME == 'master') {
             stage('Build Docker Image') {
-                container('docker') {
-                    docker.withRegistry('https://107126629234.dkr.ecr.ap-southeast-1.amazonaws.com', 'ecr:ap-southeast-1:49feb1c9-1719-4520-aa17-67695b347b0e') {
-                        script {
-                            sh """docker build --network=host -f "Dockerfile" -t 107126629234.dkr.ecr.ap-southeast-1.amazonaws.com/${appFullName} ."""
-                        }
-                    }
-                }
-            }
-
-            stage('Push Docker Image') {
-
-                container('docker') {
-                    docker.withRegistry('https://107126629234.dkr.ecr.ap-southeast-1.amazonaws.com', 'ecr:ap-southeast-1:49feb1c9-1719-4520-aa17-67695b347b0e	') {
-                        script {
-                            sh """docker push 107126629234.dkr.ecr.ap-southeast-1.amazonaws.com/${appFullName}"""
-                        }
+                container('kaniko') {
+                    script {
+                        sh """
+                        /kaniko/executor --context `pwd` --destination 107126629234.dkr.ecr.ap-southeast-1.amazonaws.com/${appFullName}
+                        """
                     }
                 }
             }
