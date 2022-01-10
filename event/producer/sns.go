@@ -53,19 +53,21 @@ func NewSNSProducer(config *configs.Config) *SNSProducer {
 }
 
 // Publish publishes a message to SNS.
-func (p *SNSProducer) Publish(request model.PublishRequest) {
-	go p.sendMessage(&sns.PublishInput{
+func (p *SNSProducer) Publish(request model.PublishRequest) error {
+	err := p.sendMessage(&sns.PublishInput{
 		Message:        aws.String(string(request.Event.Data.Value)),
 		MessageGroupId: request.MessageGroupID,
 		TopicArn:       &request.Topic,
 	})
+
+	return err
 }
 
-func (p *SNSProducer) sendMessage(msg *sns.PublishInput) {
+func (p *SNSProducer) sendMessage(msg *sns.PublishInput) error {
 	resp, err := p.sns.Publish(msg)
 	if err != nil {
 		log.Err(err).Interface("output", *msg).Msg("failed publishing message")
-		return
+		return err
 	}
 
 	logMsg := log.Info()
@@ -89,4 +91,6 @@ func (p *SNSProducer) sendMessage(msg *sns.PublishInput) {
 	logMsg.
 		Interface("snsMessage", msg.Message).
 		Msg("Published SNS message")
+
+	return nil
 }
