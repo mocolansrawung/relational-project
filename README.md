@@ -47,15 +47,3 @@ This section describe on how to contribute to this project, for example :
 * pull request procedure
 * create issue procedure
 * etc
-
-## License
-
-For most README files, this is usually considered the last part. It lets other developers know what they can 
-and cannot do with your project. Some license may have separated license with readme, so the readme will be more
-lean and concise.
-
-We have different types of licenses depending on the kind of project you are working on. Depending on the 
-one you will choose it will determine the contributions your project gets.
-
-The most common one is the GPL License which allows other to make modification to your code and use it for commercial purposes. 
-If you need help choosing a license, use check out this link: https://choosealicense.com/
