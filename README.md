@@ -1,67 +1,61 @@
-# [PROJECT_NAME]
+# PROJECT_TITLE
+This is the name of the project. It describes the whole project in one sentence, and helps people understand what 
+the main goal and aim of the project is.
 
+## Project Badges
+Badges aren't necessary, but using them is a simple way of letting other developers know that you know what you're doing.
+
+Having this section can also be helpful to help link to important tools and also show some simple stats about your project 
+like the number of forks, contributors, open issues etc...
+
+Below is sample badges to help users/contributors know build status of this project.
+
+[![Coverage Status](https://coveralls.io/repos/USERNAME/PROJECT_NAME/badge.svg?branch=master)](https://coveralls.io/r/USERNAME/PROJECT_NAME)
+[![GitHub Stars](https://img.shields.io/github/stars/USERNAME/PROJECT_NAME.svg)]()
 [![Build Status](https://jenkinsx.evermosa2z.com/buildStatus/icon?job=[JOB_NAME]%2Fmaster)](https://jenkinsx.evermosa2z.com/job/[JOB_NAME]/job/master/)
 
 ## Description
 
-This is a template for your project's readme file. Change it as necessary to
-provide basic information about this project. For more detailed documentation,
-use Confluence or the project's Wiki pages.
+This is an important component of your project that many new developers often overlook.
 
-## Management
+Your description is an extremely important aspect of your project. A well-crafted description allows you to show off 
+your work to other developers as well as potential employers.
 
-### Communication Channels
 
-Please use the following channels for communications about this project.
+## System Requirement
 
-* Discord Channel(s):
-  * [#CHANNEL1]
-  * [#CHANNEL2]
-* JIRA Board(s):
-  * [JIRA-BOARD-1]
-  * [JIRA-BOARD-2]
+Describe here the system requirements and dependencies for this project.
 
-### Product Managers
+## Setup and Installation
 
-Please contact the persons below for product and management inquries.
+If you are working on a project that a user needs to install or run locally in a machine, 
+you should include the steps required to install your project and also the required dependencies if any.
 
-* [PM1]
-* [PM2]
+Provide a step-by-step description of how to get the development environment set and running.
 
-### Engineering Managers
+## Run and Test
 
-Please contact the persons below for engineering management inquries.
+This section describe on how to run your project. Go the extra mile and write tests for your application. 
+Then provide code examples and how to run them.
 
-* [EM1]
-* [EM2]
+This will help show that you are certain and confident that your project will work without any challenges, 
+which will give other people confidence in it, too
 
-## Maintainers
+## Contributing
 
-Please contact the persons below for techincal inquries.
+This section describe on how to contribute to this project, for example :
+* pull request procedure
+* create issue procedure
+* etc
 
-### Tech Lead
+## License
 
-[TL1]
+For most README files, this is usually considered the last part. It lets other developers know what they can 
+and cannot do with your project. Some license may have separated license with readme, so the readme will be more
+lean and concise.
 
-### Frontend Engineers
+We have different types of licenses depending on the kind of project you are working on. Depending on the 
+one you will choose it will determine the contributions your project gets.
 
-* [FE1]
-* [FE2]
-
-### Backend Engineers
-
-* [BE1]
-* [BE2]
-
-### Quality Assurance Engineers
-
-* [QAE1]
-* [QAE2]
-
-## Technical Information
-
-For technical information about Go-based Backend Services, please visit the
-following links:
-
-* [boilerplate-go Repository](https://github.com/evermos/boilerplate-go)
-* [Go Boilerplate Wiki](https://github.com/evermos/boilerplate-go/wiki)
+The most common one is the GPL License which allows other to make modification to your code and use it for commercial purposes. 
+If you need help choosing a license, use check out this link: https://choosealicense.com/
