@@ -1,0 +1,63 @@
+apiVersion: v1
+kind: Pod
+metadata:
+  name: kaniko
+spec:
+  containers:
+  - name: kaniko
+    image: gcr.io/kaniko-project/executor:debug
+    imagePullPolicy: "IfNotPresent"
+    command:
+    - cat
+    tty: true
+    volumeMounts:
+    - mountPath: "/kaniko/.docker"
+      name: "volume-1"
+      readOnly: false
+    - mountPath: "/root/.aws"
+      name: "volume-0"
+      readOnly: false
+  - name: kaniko2
+    image: gcr.io/kaniko-project/executor:debug
+    imagePullPolicy: "IfNotPresent"
+    command:
+    - cat
+    tty: true
+    volumeMounts:
+    - mountPath: "/kaniko/.docker"
+      name: "volume-1"
+      readOnly: false
+    - mountPath: "/root/.aws"
+      name: "volume-0"
+      readOnly: false
+  - image: "jenkins/inbound-agent:4.10-3"
+    name: "jnlp"
+    resources:
+      limits: {}
+      requests:
+        memory: "256Mi"
+        cpu: "100m"
+  - command:
+    - "cat"
+    image: "openjdk:11"
+    imagePullPolicy: "IfNotPresent"
+    name: "sonarqube"
+    resources:
+      limits: {}
+      requests: {}
+    tty: true
+  volumes:
+  - name: "volume-0"
+    secret:
+      secretName: "aws-cli"
+  - configMap:
+      name: "docker-config"
+    name: "volume-1"
+  restartPolicy: "Never"
+  nodeSelector:
+    evermos.com/serviceClass: arm-node-jenkins
+  tolerations:
+  - key: arm
+    operator: Equal
+    value: true
+    effect: NoSchedule

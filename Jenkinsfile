@@ -1,64 +1,5 @@
 podTemplate(
-yaml: '''
-apiVersion: v1
-kind: Pod
-metadata:
-  name: kaniko
-spec:
-  containers:
-  - name: kaniko
-    image: gcr.io/kaniko-project/executor:debug
-    imagePullPolicy: "IfNotPresent"
-    command:
-    - cat
-    tty: true
-    volumeMounts:
-    - mountPath: "/kaniko/.docker"
-      name: "volume-1"
-      readOnly: false
-    - mountPath: "/root/.aws"
-      name: "volume-0"
-      readOnly: false
-  - name: kaniko2
-    image: gcr.io/kaniko-project/executor:debug
-    imagePullPolicy: "IfNotPresent"
-    command:
-    - cat
-    tty: true
-    volumeMounts:
-    - mountPath: "/kaniko/.docker"
-      name: "volume-1"
-      readOnly: false
-    - mountPath: "/root/.aws"
-      name: "volume-0"
-      readOnly: false
-  - image: "jenkins/inbound-agent:4.10-3"
-    name: "jnlp"
-    resources:
-      limits: {}
-      requests:
-        memory: "256Mi"
-        cpu: "100m"
-  - command:
-    - "cat"
-    image: "openjdk:11"
-    imagePullPolicy: "IfNotPresent"
-    name: "sonarqube"
-    resources:
-      limits: {}
-      requests: {}
-    tty: true
-  volumes:
-  - name: "volume-0"
-    secret:
-      secretName: "aws-cli"
-  - configMap:
-      name: "docker-config"
-    name: "volume-1"
-  restartPolicy: "Never"
-  nodeSelector:
-    evermos.com/serviceClass: t3a-large-jenkins
-'''
+    yaml: readTrusted('pod.yaml')
   ) {
     node(POD_LABEL) {
         def appName = "boilerplate-go"
@@ -79,7 +20,7 @@ spec:
                         $class: 'ChangelogToBranch',
                         options: [
                             compareRemote: 'origin',
-                            compareTarget: 'master'
+                            compareTarget: 'main'
                         ]
                     ]
                 ],
@@ -148,7 +89,7 @@ spec:
         }
 
         // Build and push the image and notify via Discord only on PR merge to master.
-        if (env.BRANCH_NAME == 'master') {
+        if (env.BRANCH_NAME == 'main') {
             stage('Build Docker Image') {
                 container('kaniko') {
                     script {
