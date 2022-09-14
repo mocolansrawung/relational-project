@@ -2,7 +2,7 @@ ARG GO_VERSION=1.14
 # Builder
 FROM golang:${GO_VERSION}-alpine as builder
 
-RUN apk update && apk upgrade && \
+RUN apk update && \
     apk --update add git make build-base
 
 WORKDIR /app
@@ -15,7 +15,7 @@ RUN go build -o goBinary .
 # Distribution
 FROM alpine:latest
 
-RUN apk update && apk upgrade && apk --no-cache add ca-certificates && \
+RUN apk update && apk --no-cache add ca-certificates && \
     apk --update --no-cache add tzdata
 
 ENV TZ=Asia/Jakarta

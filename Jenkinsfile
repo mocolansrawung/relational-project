@@ -26,7 +26,7 @@ podTemplate(
                 ],
                 userRemoteConfigs: scm.userRemoteConfigs
                 ])
-            appFullName = "${appName}:${scmVars.GIT_COMMIT}"
+            appFullName = "${appName}:${getShortCommit()}-${getTimeStamp()}"
             revision = "${scmVars.GIT_COMMIT}"
             repoURL = "${scmVars.GIT_URL}"
             echo repoURL
