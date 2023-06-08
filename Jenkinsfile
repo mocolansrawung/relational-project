@@ -1,7 +1,7 @@
 variables([
   "Name": "boilerplate-go",
   "Type": "backend",
-  "Arch": "amd64",
+  "Arch": "arm64",
   "Flow": "trunk",
   "Notif": "slack",
   "Channel": "#jenkins-build",
