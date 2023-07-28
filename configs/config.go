@@ -87,6 +87,10 @@ type Config struct {
 						ARN     string `mapstructure:"ARN"`
 						Enabled bool   `mapstructure:"ENABLED"`
 					} `mapstructure:"FOO_CREATED"`
+					ProductCreated struct {
+						ARN     string `mapstructure:"ARN"`
+						Enabled bool   `mapstructure:"ENABLED"`
+					} `mapstructure:"PRODUCT_CREATED"`
 				}
 			}
 		}
