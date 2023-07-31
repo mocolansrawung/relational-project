@@ -48,28 +48,39 @@ func ProvideProductRepositoryMySQL(db *infras.MySQLConn) *ProductRepositoryMySQL
 }
 
 // Create creates a new Product
+// func (r *ProductRepositoryMySQL) Create(product Product) (err error) {
+// 	exists, err := r.ExistsByID(product.ID)
+// 	if err != nil {
+// 		logger.ErrorWithStack(err)
+// 		return
+// 	}
+
+// 	if exists {
+// 		err = failure.Conflict("create", "product", "already exists")
+// 		logger.ErrorWithStack(err)
+// 		return
+// 	}
+
+// 	return r.DB.WithTransaction(func(tx *sqlx.Tx, e chan error) {
+// 		if err := r.txCreate(tx, product); err != nil {
+// 			e <- err
+// 			return
+// 		}
+
+// 		e <- nil
+// 	})
+// }
+
 func (r *ProductRepositoryMySQL) Create(product Product) (err error) {
 	exists, err := r.ExistsByID(product.ID)
-	if err != nil {
-		logger.ErrorWithStack(err)
-		return
-	}
-
-	if exists {
-		err = failure.Conflict("create", "product", "already exists")
-		logger.ErrorWithStack(err)
-		return
-	}
-
-	return r.DB.WithTransaction(func(tx *sqlx.Tx, e chan error) {
-		if err := r.txCreate(tx, product); err != nil {
-			e <- err
-			return
-		}
-
-		e <- nil
-	})
 }
+
+// Resolve resolves all Products
+// func (r *ProductRepositoryMySQL) Resolve(id uuid.UUID) (product Product, err error) {
+// 	err = r.DB.Read.Get(
+
+// 	)
+// }
 
 func (r *ProductRepositoryMySQL) ExistsByID(id uuid.UUID) (exists bool, err error) {
 	err = r.DB.Read.Get(

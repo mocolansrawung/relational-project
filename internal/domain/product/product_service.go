@@ -7,6 +7,7 @@ import (
 
 type ProductService interface {
 	Create(requestFormat ProductRequestFormat) (product Product, err error)
+	ResolveByID()
 }
 
 type ProductServiceImpl struct {
